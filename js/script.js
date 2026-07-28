@@ -19,6 +19,20 @@ const portfolioItems = [
     tag: 'ProjectScraps',
     title: 'Unreal Blueprint Prototype',
     caption: 'Placeholder art — early Blueprint-only prototyping in Unreal Engine, exploring node-based systems outside GameMaker.'
+  },
+  {
+    type: 'slideshow',
+    link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
+    images: [
+      'assets/kib/kib-shot-1.png',
+      'assets/kib/kib-shot-2.png',
+      'assets/kib/kib-shot-3.png',
+      'assets/kib/kib-shot-4.png',
+      'assets/kib/kib-gato-boss.png'
+    ],
+    tag: 'itch.io',
+    title: 'K.I.B.',
+    caption: 'Kitties in Black — live and playable now on itch.io.'
   }
 
   // Example of a gif entry:
@@ -38,27 +52,82 @@ function mediaThumbHTML(item) {
   if (item.type === 'video') {
     return `<video src="${item.src}" muted loop playsinline preload="metadata"></video>`;
   }
+  if (item.type === 'slideshow') {
+    const slides = item.images.map((src, i) =>
+      `<img class="slide${i === 0 ? ' active' : ''}" src="${src}" alt="${item.title}" loading="lazy">`
+    ).join('');
+    return `
+      <div class="slideshow-track">${slides}</div>
+      <button class="slide-btn slide-prev" type="button" aria-label="Previous screenshot">&#8249;</button>
+      <button class="slide-btn slide-next" type="button" aria-label="Next screenshot">&#8250;</button>
+    `;
+  }
   // image, gif, and embed thumbnails all render as <img> in the grid
   // (for embeds you'd typically also set a "thumb" field; falling back to src here)
   return `<img src="${item.thumb || item.src}" alt="${item.title}" loading="lazy">`;
+}
+
+const SLIDESHOW_INTERVAL_MS = 3500;
+
+function initSlideshow(card, item) {
+  const slides = card.querySelectorAll('.slide');
+  let index = 0;
+  let timer = null;
+
+  function show(newIndex) {
+    slides[index].classList.remove('active');
+    index = (newIndex + slides.length) % slides.length;
+    slides[index].classList.add('active');
+  }
+
+  function restartTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => show(index + 1), SLIDESHOW_INTERVAL_MS);
+  }
+
+  card.querySelector('.slide-prev').addEventListener('click', (e) => {
+    e.stopPropagation();
+    show(index - 1);
+    restartTimer();
+  });
+  card.querySelector('.slide-next').addEventListener('click', (e) => {
+    e.stopPropagation();
+    show(index + 1);
+    restartTimer();
+  });
+
+  restartTimer();
 }
 
 portfolioItems.forEach((item, i) => {
   const card = document.createElement('article');
   card.className = 'card reveal';
   card.style.setProperty('--i', i);
+  const isSlideshow = item.type === 'slideshow';
+  const titleHTML = isSlideshow
+    ? `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
+    : item.title;
   card.innerHTML = `
-    <div class="card-media">
+    <div class="card-media${isSlideshow ? ' slideshow' : ''}">
       <span class="card-tag">${item.tag}</span>
       ${mediaThumbHTML(item)}
       <div class="card-expand" aria-hidden="true">&#8599;</div>
     </div>
     <div class="card-body">
-      <h3>${item.title}</h3>
+      <h3>${titleHTML}</h3>
       <p>${item.caption}</p>
     </div>
   `;
-  card.addEventListener('click', () => openLightbox(i));
+
+  if (isSlideshow) {
+    initSlideshow(card, item);
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.slide-btn') || e.target.closest('.card-body a')) return;
+      window.open(item.link, '_blank', 'noopener');
+    });
+  } else {
+    card.addEventListener('click', () => openLightbox(i));
+  }
 
   // subtle 3D tilt on hover
   card.addEventListener('mousemove', (e) => {
