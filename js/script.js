@@ -45,6 +45,48 @@ const portfolioItems = [
   // { type: 'embed', src: 'https://www.youtube.com/embed/VIDEO_ID', tag: 'Convoy', title: 'Devlog #1', caption: 'First devlog walkthrough.' },
 ];
 
+/* ---------------- Hero showcase ---------------- */
+function heroThumbSrc(item) {
+  if (item.type === 'slideshow') return item.images[0];
+  if (item.type === 'video') return item.poster || null;
+  if (item.type === 'embed') return item.thumb || null;
+  return item.thumb || item.src;
+}
+
+const heroSlides = portfolioItems
+  .map((item) => ({ src: heroThumbSrc(item), tag: item.tag, title: item.title }))
+  .filter((slide) => slide.src);
+
+const heroTrack = document.getElementById('hero-showcase-track');
+const heroTagEl = document.getElementById('hero-showcase-tag');
+const heroTitleEl = document.getElementById('hero-showcase-title');
+
+if (heroTrack && heroSlides.length) {
+  heroTrack.innerHTML = heroSlides
+    .map((s, i) => `<img class="slide${i === 0 ? ' active' : ''}" src="${s.src}" alt="${s.title}" loading="lazy">`)
+    .join('');
+
+  const heroImgs = heroTrack.querySelectorAll('.slide');
+  let heroIndex = 0;
+
+  function updateHeroInfo() {
+    heroTagEl.textContent = heroSlides[heroIndex].tag;
+    heroTitleEl.textContent = heroSlides[heroIndex].title;
+  }
+  updateHeroInfo();
+
+  function showHeroSlide(newIndex) {
+    heroImgs[heroIndex].classList.remove('active');
+    heroIndex = (newIndex + heroImgs.length) % heroImgs.length;
+    heroImgs[heroIndex].classList.add('active');
+    updateHeroInfo();
+  }
+
+  if (heroImgs.length > 1) {
+    setInterval(() => showHeroSlide(heroIndex + 1), 4000);
+  }
+}
+
 /* ---------------- Render portfolio grid ---------------- */
 const grid = document.getElementById('portfolio-grid');
 
@@ -128,17 +170,6 @@ portfolioItems.forEach((item, i) => {
   } else {
     card.addEventListener('click', () => openLightbox(i));
   }
-
-  // subtle 3D tilt on hover
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `perspective(800px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg) translateY(-4px)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-  });
 
   grid.appendChild(card);
 });
