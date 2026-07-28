@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nikhil Simha — Game Dev Portfolio</title>
+<meta name="description" content="Game development portfolio of Nikhil Simha — systems, combat design, and cinematic work.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <header class="nav" id="nav">
+    <a href="#top" class="nav-logo">NIKHIL<span>SIMHA</span></a>
+    <nav class="nav-links">
+      <a href="#work" data-nav>Work</a>
+      <a href="#about" data-nav>About</a>
+      <a href="#contact" data-nav>Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <p class="hero-eyebrow reveal">Game Developer</p>
+      <h1 class="hero-title reveal">
+        <span class="gradient-text">Systems &amp; Combat</span><br>Design
+      </h1>
+      <p class="hero-sub reveal">
+        Building cinematic melee combat, tools, and interactive systems.
+        Currently shipping in GameMaker and learning Unreal, one blueprint at a time.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#work" class="btn btn-primary">View Work</a>
+        <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+      </div>
+      <div class="scroll-cue" aria-hidden="true"><span></span></div>
+    </section>
+
+    <section class="work" id="work">
+      <div class="section-head reveal">
+        <p class="section-eyebrow">Selected Work</p>
+        <h2>Portfolio</h2>
+      </div>
+
+      <div class="grid" id="portfolio-grid"></div>
+    </section>
+
+    <section class="about" id="about">
+      <div class="section-head reveal">
+        <p class="section-eyebrow">About</p>
+        <h2>Who's behind this</h2>
+      </div>
+      <div class="about-content reveal">
+        <p>
+          I'm Nikhil — a game developer focused on combat systems, cinematic feel, and the
+          small mechanical details that make an action beat land. Right now I'm building
+          <strong>Convoy</strong>, a project centered on a cinematic melee system, while
+          picking up Unreal and Blueprints on the side.
+        </p>
+        <p>
+          This site is a running log of that work — prototypes, experiments, and the pieces
+          I'm proud enough to show.
+        </p>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact-card reveal">
+        <p class="section-eyebrow">Contact</p>
+        <h2>Let's talk</h2>
+        <p class="contact-sub">Open to opportunities, collaborations, and conversations about game feel.</p>
+        <a href="mailto:hello@nikhilsimha.gd" class="btn btn-primary">hello@nikhilsimha.gd</a>
+        <div class="social-links">
+          <a href="#" target="_blank" rel="noopener">GitHub</a>
+          <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="#" target="_blank" rel="noopener">Twitter / X</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> Nikhil Simha. Built with vanilla HTML/CSS/JS.</p>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">&#8249;</button>
+    <div class="lightbox-media" id="lightbox-media"></div>
+    <p class="lightbox-caption" id="lightbox-caption"></p>
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">&#8250;</button>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
