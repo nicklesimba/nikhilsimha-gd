@@ -284,54 +284,46 @@ button {
 .showcase-link { position: absolute; inset: 0; z-index: 2; }
 .showcase-link:not([href]) { pointer-events: none; }
 
-/* Grey banner across the foot of the frame, naming what is on screen. */
-.showcase-caption {
-  position: absolute;
-  left: 0; bottom: 0;
-  right: var(--rail-w);          /* stops short of the thumbnail rail */
-  z-index: 3;
+/* Text sits above the frame on the page, so it stays selectable. */
+.showcase-header {
+  padding: clamp(18px, 2.2vw, 26px) clamp(20px, 2.4vw, 30px) clamp(14px, 1.8vw, 20px);
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  /* Same translucent grey as the rail, so the two read as one overlay. */
-  background: rgba(46, 44, 52, 0.55);
-  /* A touch of blur keeps the white type legible over busy screenshots. */
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  pointer-events: none;
-}
-
-.showcase-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  min-width: 0;
-  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 .showcase-tag {
   font-size: 0.66rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #b9a9ea;
-  white-space: nowrap;
+  color: var(--blue);
 }
 .showcase-title {
   font-weight: 600;
-  font-size: 0.92rem;
-  color: #ffffff;
-  min-width: 0;      /* a longer caption wraps rather than being clipped */
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  border-bottom: 1px solid transparent;
+  transition: color 0.18s ease, border-color 0.18s ease;
 }
-
+.showcase-title[href]:hover {
+  color: var(--violet);
+  border-bottom-color: var(--violet);
+}
+.showcase-blurb {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+  max-width: 78ch;
+}
 .showcase-cta {
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.62);
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
-.showcase-frame:hover .showcase-cta { opacity: 1; }
 .showcase-cta:empty { display: none; }
 
 /* Thumbnail rail down the right edge of the frame. */
@@ -347,9 +339,21 @@ button {
   /* Scroll chains straight through to the page: the rail must never trap it. */
   overflow-y: auto;
   overscroll-behavior: auto;
-  background: rgba(46, 44, 52, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  /* Off white carrying the pastel accents, drifting slowly across. */
+  background: linear-gradient(115deg,
+    rgba(246, 244, 240, 0.42),
+    rgba(216, 205, 247, 0.34),
+    rgba(207, 227, 245, 0.34),
+    rgba(246, 217, 232, 0.34),
+    rgba(246, 244, 240, 0.42));
+  background-size: 300% 300%;
+  animation: rail-drift 24s linear infinite;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+@keyframes rail-drift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 300% 50%; }
 }
 .showcase-rail::-webkit-scrollbar { width: 5px; }
 .showcase-rail::-webkit-scrollbar-track { background: transparent; }
@@ -380,7 +384,7 @@ button {
 .rail-thumb:hover { opacity: 1; }
 .rail-thumb.active {
   opacity: 1;
-  outline-color: #ffffff;
+  outline-color: var(--text);
 }
 
 @media (max-width: 900px) {

@@ -104,6 +104,7 @@ const linkEl = document.getElementById('showcase-link');
 const linkLabelEl = document.getElementById('showcase-link-label');
 const tagEl = document.getElementById('showcase-tag');
 const titleEl = document.getElementById('showcase-title');
+const blurbEl = document.getElementById('showcase-blurb');
 const ctaEl = document.getElementById('showcase-cta');
 
 const STILL_DWELL_MS = 5000;
@@ -158,7 +159,7 @@ if (track && previewSlides.length) {
     const v = slide && slide.querySelector('.slide-video');
     if (!v) return;
     v.addEventListener('playing', () => slide.classList.add('playing'), { once: true });
-    v.currentTime = 0;
+    // No seek to zero: coming back to a clip resumes where it left off.
     const played = v.play();
     // A rejected autoplay just leaves the still up, which is a fine fallback.
     if (played && played.catch) played.catch(() => {});
@@ -179,32 +180,40 @@ if (track && previewSlides.length) {
 
     tagEl.textContent = project.tag;
     titleEl.textContent = project.previewTitle || project.title;
-    ctaEl.textContent = project.link ? (project.cta || 'View project') : '';
+    blurbEl.textContent = project.blurb;
+    ctaEl.textContent = project.link ? (project.cta || 'View project') : 'Coming soon';
 
     if (project.link) {
       linkEl.href = project.link;
       linkEl.removeAttribute('aria-hidden');
       linkEl.tabIndex = 0;
       linkLabelEl.textContent = `${project.cta || 'View'}: ${project.title}`;
+      titleEl.href = project.link;
     } else {
       linkEl.removeAttribute('href');
       linkEl.setAttribute('aria-hidden', 'true');
       linkEl.tabIndex = -1;
       linkLabelEl.textContent = '';
+      titleEl.removeAttribute('href');
     }
 
     schedule(STILL_DWELL_MS);
   }
 
-  // Hovering a thumbnail jumps to it and rolls that slide's clip. The click
-  // itself is left alone: these are links straight to the project.
+  // The rail browses stills: hovering a thumbnail shows that screenshot and
+  // holds the footage. Clicks are left alone, these are links to the project.
   rail.forEach((thumb, i) => {
     const show = () => {
       if (i !== index) go(i);
-      if (!reduceMotion) startVideo(slides[i]);
+      stopVideo(slides[index]);
     };
     thumb.addEventListener('mouseenter', show);
     thumb.addEventListener('focus', show);
+  });
+
+  // Back off the rail but still inside the frame: the clip picks up again.
+  railWrap.addEventListener('mouseleave', () => {
+    if (paused && !reduceMotion) startVideo(slides[index]);
   });
 
   const frame = track.closest('.showcase-frame');
