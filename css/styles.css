@@ -252,8 +252,8 @@ button {
 }
 .showcase-frame:hover { border-color: var(--violet); }
 
-/* The picture area stops at the rail so nothing hides behind it. */
-.showcase-track { position: absolute; inset: 0 var(--rail-w) 0 0; }
+/* The picture spans the whole window. The rail and caption float over it. */
+.showcase-track { position: absolute; inset: 0; }
 
 .slide {
   position: absolute;
@@ -294,7 +294,8 @@ button {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: rgba(46, 44, 52, 0.6);
+  /* Same translucent grey as the rail, so the two read as one overlay. */
+  background: rgba(46, 44, 52, 0.55);
   /* A touch of blur keeps the white type legible over busy screenshots. */
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
