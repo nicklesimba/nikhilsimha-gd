@@ -68,7 +68,17 @@ const projects = [
     blurb: 'A GameMaker Studio integration with 44 tools that let an AI agent edit objects, sprites, rooms, and events inside a live project rather than hand back code to paste.',
     link: 'https://github.com/nicklesimba/gm-forge-mcp',
     cta: 'View on GitHub',
-    // thumb: 'assets/poster/gm-forge.png',
+    thumb: 'assets/logo/gm-forge-mcp.svg',
+    thumbFit: 'logo',
+  },
+  {
+    tag: 'Tooling',
+    title: 'agones-conductor-mcp',
+    blurb: 'A Go server that hooks AI agents into Agones, which runs dedicated game server fleets on Kubernetes. Checks on fleets and game servers without a kubectl detour.',
+    link: 'https://github.com/nicklesimba/agones-conductor-mcp',
+    cta: 'View on GitHub',
+    thumb: 'assets/logo/agones-conductor-mcp.svg',
+    thumbFit: 'logo',
   },
 ];
 
@@ -91,6 +101,20 @@ const slidesFor = (project) =>
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* Rows and titles are links, but their text still has to be selectable. Once
+   something is selected, the mouseup that ends the drag must not navigate. */
+const hasSelection = () => String(window.getSelection() || '').trim().length > 0;
+
+function keepSelectable(el) {
+  el.draggable = false;
+  el.addEventListener('click', (e) => {
+    if (hasSelection()) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  });
+}
+
 /* ============================================================================
    Showcase — still fades into silent preview footage, click opens the project
    ============================================================================ */
@@ -103,6 +127,7 @@ const tagEl = document.getElementById('showcase-tag');
 const titleEl = document.getElementById('showcase-title');
 const blurbEl = document.getElementById('showcase-blurb');
 const ctaEl = document.getElementById('showcase-cta');
+if (titleEl) keepSelectable(titleEl);
 
 const STILL_DWELL_MS = 5000;
 
@@ -305,6 +330,7 @@ projects.forEach((project, i) => {
   const row = document.createElement(project.link ? 'a' : 'button');
   row.className = 'project-row reveal';
   row.style.setProperty('--i', Math.min(i, 6));
+  keepSelectable(row);
 
   if (project.link) {
     row.href = project.link;
@@ -321,7 +347,7 @@ projects.forEach((project, i) => {
 
   row.innerHTML = `
     <span class="project-index">${String(i + 1).padStart(2, '0')}</span>
-    <span class="project-thumb">${thumbHTML(project)}</span>
+    <span class="project-thumb${project.thumbFit === 'logo' ? ' is-logo' : ''}">${thumbHTML(project)}</span>
     <span class="project-info">
       <span class="project-tag">${project.tag}</span>
       <span class="project-title">${project.title}</span>

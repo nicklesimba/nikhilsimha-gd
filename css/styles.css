@@ -48,6 +48,21 @@ button {
   cursor: pointer;
 }
 
+/* Every word on the page can be click-dragged to highlight. Buttons suppress
+   selection by default and links start a drag instead, so both are overridden;
+   the click handlers bail out when a selection exists. */
+body, button, a {
+  -webkit-user-select: text;
+  user-select: text;
+}
+a, .project-row, .rail-thumb, .showcase-link {
+  -webkit-user-drag: none;
+}
+.project-thumb img, .rail-thumb img, .portrait, .slide-poster {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 ::selection { background: var(--violet-soft); color: var(--text); }
 
 ::-webkit-scrollbar { width: 12px; }
@@ -480,23 +495,16 @@ button {
   justify-content: space-between;
   gap: 16px;
   margin-top: clamp(44px, 6vw, 76px);
-  padding: 16px var(--gutter);
-  background: var(--bg-sunk);
+  padding: 18px var(--gutter);
   border-top: 1px solid var(--text);
   border-bottom: 1px solid var(--text);
 }
 .section-head h2 {
-  font-size: 0.78rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
   font-weight: 700;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   margin: 0;
-}
-.section-count {
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  color: var(--text-faint);
 }
 
 .project-list { display: flex; flex-direction: column; }
@@ -542,6 +550,15 @@ button {
   transition: filter 0.2s ease, transform 0.35s ease;
 }
 .project-row:hover .project-thumb img { filter: saturate(1.05); transform: scale(1.04); }
+
+/* Logos are artwork, not screenshots: show them whole on a plain ground. */
+.project-thumb.is-logo { background: var(--bg-sunk); }
+.project-thumb.is-logo img {
+  object-fit: contain;
+  padding: 9px;
+  filter: none;
+}
+.project-row:hover .project-thumb.is-logo img { transform: scale(1.03); filter: none; }
 
 .thumb-empty {
   display: flex;
