@@ -29,7 +29,7 @@ const projects = [
     tag: 'GameMaker',
     title: 'Convoy',
     blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
-    // link: 'https://www.youtube.com/watch?v=YOUR_WIP_DEMO',
+    link: 'https://youtu.be/6LGuYfwRs9Y',
     cta: 'Watch the demo',
     comingSoon: true,        // holds a preview slot until there are captures
     // thumb:  'assets/poster/convoy.png',
