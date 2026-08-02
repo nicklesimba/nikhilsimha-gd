@@ -18,6 +18,7 @@
   /* Mostly proportional, so the column narrows with the viewport instead of
      holding a fixed width and eating the picture on smaller screens. */
   --rail-w: clamp(172px, 22vw, 340px);
+  --thumb-min: clamp(58px, 6.4vw, 126px);
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Full bleed: the layout always fills the viewport, gutters aside. */
   --max-width: 100%;
@@ -398,16 +399,13 @@ a, .project-row, .rail-thumb, .showcase-link {
 .showcase-prev { left: 0; border-left: 0; }
 .showcase-next { right: var(--rail-w); border-right: 0; }
 
-/* Two up, so a handful of stills fit without the column needing to scroll.
-   Once the column is narrow the pair would be postage stamps, so drop to one. */
+/* Tiles size themselves off the viewport and reflow to fill the column, so a
+   narrower screen gets smaller thumbnails rather than fewer or taller ones. */
 .rail-thumbs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-min), 1fr));
+  gap: clamp(5px, 0.5vw, 8px);
   align-content: start;
-}
-@media (max-width: 1120px) {
-  .rail-thumbs { grid-template-columns: 1fr; }
 }
 
 .rail-thumb {
@@ -437,7 +435,7 @@ a, .project-row, .rail-thumb, .showcase-link {
 }
 
 @media (max-width: 900px) {
-  :root { --rail-w: min(58vw, 260px); }
+  :root { --rail-w: min(58vw, 260px); --thumb-min: 52px; }
   .hero { grid-template-columns: 1fr; }
   .showcase {
     order: -1;                                   /* visuals lead on mobile */

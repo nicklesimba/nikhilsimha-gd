@@ -106,6 +106,15 @@ const slidesFor = (project) =>
     video: project.video || null
   }));
 
+/* A reload lands on the site proper, whatever section the reader was parked
+   at. Drop the fragment without adding a history entry, and stop the browser
+   from restoring the old scroll offset on top of that. */
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if (location.hash) {
+  history.replaceState(null, '', location.pathname + location.search);
+}
+window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* Rows and titles are links, but their text still has to be selectable. Once
