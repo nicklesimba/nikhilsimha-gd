@@ -224,8 +224,12 @@ if (track && previewProjects.length) {
     const project = previewProjects[projectIndex];
     previewSlides = slidesFor(project);
 
+    /* Each slide is a blurred cover-scaled backdrop with the whole frame laid
+       over it just inside a fit, so nothing is ever cropped and the letterbox
+       reads as part of the image rather than as dead space. */
     track.innerHTML = previewSlides.map((s, i) => `
       <div class="slide${i === 0 ? ' active' : ''}">
+        ${s.src ? `<img class="slide-backdrop" src="${s.src}" alt="" aria-hidden="true">` : ''}
         ${s.src ? `<img class="slide-poster" src="${s.src}" alt="${s.project.title}">` : ''}
         ${s.video && !reduceMotion
           ? `<video class="slide-video" src="${s.video}" muted loop playsinline preload="none"></video>`

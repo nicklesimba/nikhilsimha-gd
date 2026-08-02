@@ -61,7 +61,7 @@ body, button, a {
 a, .project-row, .rail-thumb, .showcase-link {
   -webkit-user-drag: none;
 }
-.project-thumb img, .rail-thumb img, .portrait, .slide-poster {
+.project-thumb img, .rail-thumb img, .portrait, .slide-poster, .slide-backdrop {
   -webkit-user-drag: none;
   user-select: none;
 }
@@ -285,18 +285,36 @@ a, .project-row, .rail-thumb, .showcase-link {
 }
 .slide.active { opacity: 1; }
 
-/* The display window is always full: the still covers it, no letterboxing. */
-.slide-poster,
-.slide-video {
+/* Backdrop: the same frame scaled to cover and blurred, so the window is
+   always full. Overscaled because a blur of this radius bleeds at the edges. */
+.slide-backdrop {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  z-index: 0;
+  filter: blur(28px) saturate(1.15) brightness(0.82);
+  transform: scale(1.18);
+}
+
+/* Foreground: the whole frame, fitted and then eased in a touch so the blur
+   reads as a deliberate surround rather than a seam. */
+.slide-poster,
+.slide-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(0.97);
+  display: block;
+  z-index: 1;
 }
 /* Footage fades up over its own thumbnail, and only while hovered. */
 .slide-video {
+  z-index: 2;
   opacity: 0;
   transition: opacity 0.45s ease;
 }
