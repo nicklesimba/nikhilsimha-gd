@@ -41,7 +41,7 @@ const projects = [
       'assets/convoy/convoy-sc-3.png',
       'assets/convoy/convoy-sc-4.png'
     ],
-    // video: 'assets/video/convoy.mp4',
+    video: 'assets/video/convoy.mp4',
   },
   {
     tag: 'itch.io',
