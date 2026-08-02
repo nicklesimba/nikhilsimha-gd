@@ -613,6 +613,29 @@ button {
   .lightbox-next { right: 8px; }
 }
 
+/* --------------------------------------------------------- Ultrawide ------ */
+/* Wide desktops get a wider column, and 21:9 gets two projects per row. */
+@media (min-width: 1600px) {
+  :root { --max-width: 1460px; }
+}
+
+@media (min-width: 2000px) {
+  :root { --max-width: 1900px; --gutter: clamp(56px, 4vw, 88px); }
+
+  .project-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(36px, 3.4vw, 64px);
+  }
+  /* A vertical rule between the two stacks, matching the hero split. */
+  .project-row:nth-child(2n) {
+    border-left: 1px solid var(--rule);
+    padding-left: clamp(36px, 3.4vw, 64px);
+  }
+  .project-row:nth-child(2n):hover { padding-left: calc(clamp(36px, 3.4vw, 64px) + 10px); }
+  .project-row { grid-template-columns: 34px 172px minmax(0, 1fr) auto 22px; }
+}
+
 /* ------------------------------------------------- Motion preferences ----- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
