@@ -444,6 +444,14 @@ window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 20);
 }, { passive: true });
 
+/* The landing sizes itself against the viewport minus the nav, so measure the
+   nav rather than hard-coding a height that font loading could change. */
+const syncNavHeight = () =>
+  document.documentElement.style.setProperty('--nav-h', `${nav.offsetHeight}px`);
+syncNavHeight();
+window.addEventListener('resize', syncNavHeight);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncNavHeight);
+
 const navLinks = document.querySelectorAll('[data-nav]');
 const sectionObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
