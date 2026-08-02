@@ -46,7 +46,7 @@ const projects = [
       'assets/kib/kib-sc-4.png',
       'assets/kib/gato-boss.png'
     ],
-    // video: 'assets/video/kib.mp4',
+    video: 'assets/video/kib.mp4',
   },
   {
     tag: 'GMTK Jam 2026',
@@ -81,11 +81,11 @@ const projects = [
 const thumbOf = (p) => p.thumb || (p.images && p.images[0]) || null;
 
 const previewSlides = projects.flatMap((project) =>
-  (project.images || []).map((src, i) => ({
+  (project.images || []).map((src) => ({
     src,
     project,
-    // A project's clip belongs to its first still, not to all of them.
-    video: i === 0 ? project.video : null
+    // Every still of a project rolls that project's clip on hover.
+    video: project.video || null
   }))
 );
 

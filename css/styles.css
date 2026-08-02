@@ -233,8 +233,8 @@ button {
 .showcase {
   display: flex;
   flex-direction: column;
-  /* No gutter at all on this side: the frame runs to the edge of the page. */
-  padding: 0 0 clamp(40px, 5vw, 64px) 0;
+  /* No padding at all: the frame is the whole column, edge to edge. */
+  padding: 0;
   min-width: 0;
 }
 
@@ -244,12 +244,9 @@ button {
   width: 100%;
   flex: 1;
   min-height: min(58vh, 460px);
-  max-height: 82vh;
   overflow: hidden;
-  /* Only the foot is drawn. The hero divider, the nav rule and the page edge
-     already bound the other three sides. */
+  /* The hero's own rules bound this on every side. */
   border: 0;
-  border-bottom: 1px solid var(--rule-strong);
   background: #2e2c34;
   transition: border-color 0.2s ease;
 }
@@ -267,15 +264,14 @@ button {
 }
 .slide.active { opacity: 1; }
 
-/* Never crop the art. The frame grows to whatever height it can, and the
-   whole thumbnail sits inside it. */
+/* The display window is always full: the still covers it, no letterboxing. */
 .slide-poster,
 .slide-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
 }
 /* Footage fades up over its own thumbnail, and only while hovered. */
@@ -393,6 +389,7 @@ button {
   .showcase {
     order: -1;                                   /* visuals lead on mobile */
     padding: 0;
+    border-bottom: 1px solid var(--rule);
   }
   .identity {
     border-right: 0;
