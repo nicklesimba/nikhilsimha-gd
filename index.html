@@ -1,102 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nikhil Simha — Game Dev Portfolio</title>
-<meta name="description" content="Game development portfolio of Nikhil Simha — systems, combat design, and cinematic work.">
-<link rel="icon" href="data:,">
+<title>Nikhil Simha — Game Designer</title>
+<meta name="description" content="Nikhil Simha is a game designer working on combat systems and game feel in GameMaker and Unreal. Selected work, prototypes, and shipped projects.">
+
+<!-- Link preview (Discord, Slack, LinkedIn, X) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nicklesimba.github.io/nikhilsimha-gd/">
+<meta property="og:title" content="Nikhil Simha — Game Designer">
+<meta property="og:description" content="Combat systems and game feel. Selected work in GameMaker and Unreal.">
+<meta property="og:image" content="https://nicklesimba.github.io/nikhilsimha-gd/assets/kib/kib-gato-boss.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nikhil Simha — Game Designer">
+<meta name="twitter:description" content="Combat systems and game feel. Selected work in GameMaker and Unreal.">
+<meta name="twitter:image" content="https://nicklesimba.github.io/nikhilsimha-gd/assets/kib/kib-gato-boss.png">
+
+<meta name="theme-color" content="#f6f4f1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f6f4f1'/%3E%3Ctext x='32' y='43' font-family='monospace' font-size='28' font-weight='700' fill='%236d55c4' text-anchor='middle'%3ENS%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body>
-
-  <canvas id="bg-canvas"></canvas>
-  <div class="cursor-glow" id="cursor-glow"></div>
+  <script>document.documentElement.classList.remove('no-js');</script>
 
   <header class="nav" id="nav">
     <a href="#top" class="nav-logo">NIKHIL <span>SIMHA</span></a>
     <nav class="nav-links">
       <a href="#work" data-nav>Work</a>
-      <a href="#about" data-nav>About</a>
       <a href="#contact" data-nav>Contact</a>
     </nav>
   </header>
 
   <main>
     <section class="hero" id="top">
-      <div class="hero-text">
-        <p class="hero-eyebrow reveal">Game Developer</p>
-        <h1 class="hero-title reveal">
-          <span class="gradient-text">Systems &amp; Combat</span><br>Design
-        </h1>
-        <p class="hero-sub reveal">
-          Building cinematic melee combat, tools, and interactive systems.
-          Currently shipping in GameMaker and learning Unreal, one blueprint at a time.
+
+      <!-- ---------- Identity ---------- -->
+      <aside class="identity">
+        <img class="portrait" src="assets/niksimha.jpeg" alt="Nikhil Simha" width="800" height="800">
+        <h1 class="identity-name">Nikhil<span>Simha</span></h1>
+        <p class="identity-role">Game Designer</p>
+        <p class="identity-tagline">
+          I'm Nikhil Simha, a game developer focused on game feel. Right now I'm building
+          game systems in my spare time for fun in both Unreal Engine and GameMaker.
+          This site contains things that I am proud enough of to share.
         </p>
-        <div class="hero-actions reveal">
+        <ul class="identity-tags">
+          <li>GameMaker</li>
+          <li>GML</li>
+          <li>Unreal</li>
+          <li>Blueprints</li>
+          <li>Combat Design</li>
+          <li>Tools</li>
+        </ul>
+        <div class="identity-actions">
           <a href="#work" class="btn btn-primary">View Work</a>
           <a href="#contact" class="btn btn-ghost">Get in Touch</a>
         </div>
-      </div>
-      <a href="#work" class="hero-showcase reveal" aria-label="View featured work">
-        <div class="hero-showcase-track" id="hero-showcase-track"></div>
-        <div class="hero-showcase-info">
-          <span class="hero-showcase-tag" id="hero-showcase-tag"></span>
-          <span class="hero-showcase-title" id="hero-showcase-title"></span>
+
+        <div class="identity-links">
+          <a href="https://nicklesimba.itch.io" target="_blank" rel="noopener">itch.io</a>
+          <a href="https://github.com/nicklesimba" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/nikhil-simha" target="_blank" rel="noopener">LinkedIn</a>
         </div>
-        <span class="hero-showcase-hint">View Work &#8599;</span>
-      </a>
-      <div class="scroll-cue" aria-hidden="true"><span></span></div>
+      </aside>
+
+      <!-- ---------- Showcase: still fades into silent preview footage ---------- -->
+      <div class="showcase">
+        <div class="showcase-frame">
+          <div class="showcase-track" id="showcase-track"></div>
+          <a class="showcase-link" id="showcase-link" target="_blank" rel="noopener">
+            <span class="sr-only" id="showcase-link-label"></span>
+          </a>
+        </div>
+
+        <div class="showcase-caption">
+          <div class="showcase-meta">
+            <span class="showcase-tag" id="showcase-tag"></span>
+            <span class="showcase-title" id="showcase-title"></span>
+          </div>
+          <span class="showcase-cta" id="showcase-cta"></span>
+          <div class="showcase-dots" id="showcase-dots" role="tablist" aria-label="Featured projects"></div>
+        </div>
+      </div>
     </section>
 
     <section class="work" id="work">
       <div class="section-head reveal">
-        <p class="section-eyebrow">Selected Work</p>
-        <h2>Portfolio</h2>
+        <h2>Projects</h2>
+        <p class="section-count" id="project-count"></p>
       </div>
-
-      <div class="grid" id="portfolio-grid"></div>
+      <div class="project-list" id="project-list"></div>
     </section>
 
-    <section class="about" id="about">
-      <div class="section-head reveal">
-        <p class="section-eyebrow">About</p>
-        <h2>Who's behind this</h2>
-      </div>
-      <div class="about-content reveal">
-        <p>
-          I'm Nikhil — a game developer focused on combat systems, cinematic feel, and the
-          small mechanical details that make an action beat land. Right now I'm building
-          <strong>Convoy</strong>, a project centered on a cinematic melee system, while
-          picking up Unreal and Blueprints on the side.
-        </p>
-        <p>
-          This site is a running log of that work — prototypes, experiments, and the pieces
-          I'm proud enough to show.
-        </p>
-      </div>
-    </section>
-
-    <section class="contact" id="contact">
-      <div class="contact-card reveal">
-        <p class="section-eyebrow">Contact</p>
-        <h2>Let's talk</h2>
-        <p class="contact-sub">Open to opportunities, collaborations, and conversations about game feel.</p>
-        <a href="mailto:simha.nikhil@gmail.com" class="btn btn-primary">simha.nikhil@gmail.com</a>
-        <div class="social-links">
-          <a href="https://github.com/nicklesimba" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://www.linkedin.com/in/nikhil-simha" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="https://x.com/nicklesimba" target="_blank" rel="noopener">Twitter / X</a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <footer class="site-footer">
-    <p>&copy; <span id="year"></span> Nikhil Simha. Built with vanilla HTML/CSS/JS.</p>
+  <footer class="site-footer" id="contact">
+    <p class="footer-note">Open to opportunities, collaborations, and conversations about game feel.</p>
+    <div class="footer-links">
+      <a href="mailto:simha.nikhil@gmail.com">simha.nikhil@gmail.com</a>
+      <a href="https://nicklesimba.itch.io" target="_blank" rel="noopener">itch.io</a>
+      <a href="https://github.com/nicklesimba" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/nikhil-simha" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://x.com/nicklesimba" target="_blank" rel="noopener">Twitter / X</a>
+    </div>
+    <p class="footer-legal">&copy; <span id="year"></span> Nikhil Simha</p>
   </footer>
 
   <!-- Lightbox -->
@@ -108,6 +119,6 @@
     <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">&#8250;</button>
   </div>
 
-  <script src="js/script.js"></script>
+  <script src="js/script.js?v=3"></script>
 </body>
 </html>

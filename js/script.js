@@ -1,28 +1,39 @@
-/* ===========================================================
-   Portfolio data — add new entries here.
-   type: "image" | "gif" | "video" | "embed"
-   - image/gif: src points to an image file (gif works identically to image)
-   - video: src points to a local video file (mp4/webm), rendered with <video controls>
-   - embed: src is an embeddable URL (e.g. YouTube/Vimeo embed link), rendered in an <iframe>
-   =========================================================== */
-const portfolioItems = [
+/* ============================================================================
+   PROJECT DATA — this is the only block you need to edit to add work.
+
+   Fields
+   ------
+   tag      Small label above the title (studio, jam, platform).
+   title    Project name.
+   blurb    One or two sentences. What you built, not what the game is about.
+   link     Where a click goes: itch page, YouTube WIP demo, GitHub. Omit or
+            leave null and the card simply is not clickable.
+   cta      Short label for the click target, e.g. "Play on itch.io",
+            "Watch the demo". Shown on hover in the showcase.
+   poster   Still image. REQUIRED for a project to appear in the top showcase.
+   video    Optional silent preview clip (a few seconds). The poster fades into
+            it automatically. Use .mp4 (H.264) — widest browser support.
+   images   Optional extra stills. If present, the grid card becomes a
+            slideshow. images[0] is used as the poster if poster is omitted.
+
+   Drop media in:  assets/poster/   and   assets/video/
+   ============================================================================ */
+const projects = [
   {
-    type: 'image',
-    src: 'assets/portfolio-melee.svg',
-    tag: 'Convoy',
-    title: 'Cinematic Melee System',
-    caption: 'Placeholder art — cinematic melee combat system in Convoy: weighty swings, hit-stop, and camera reactivity built in GameMaker.'
+    tag: 'GameMaker',
+    title: 'Convoy',
+    blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
+    // link: 'https://www.youtube.com/watch?v=YOUR_WIP_DEMO',
+    cta: 'Watch the demo',
+    // poster: 'assets/poster/convoy.png',
+    // video:  'assets/video/convoy.mp4',
   },
   {
-    type: 'image',
-    src: 'assets/portfolio-unreal.svg',
-    tag: 'ProjectScraps',
-    title: 'Unreal Blueprint Prototype',
-    caption: 'Placeholder art — early Blueprint-only prototyping in Unreal Engine, exploring node-based systems outside GameMaker.'
-  },
-  {
-    type: 'slideshow',
+    tag: 'itch.io',
+    title: 'K.I.B.',
+    blurb: 'Kitties in Black — a finished, playable release. Enemy patterns, boss encounter, and full game loop.',
     link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
+    cta: 'Play on itch.io',
     images: [
       'assets/kib/kib-shot-1.png',
       'assets/kib/kib-shot-2.png',
@@ -30,171 +41,229 @@ const portfolioItems = [
       'assets/kib/kib-shot-4.png',
       'assets/kib/kib-gato-boss.png'
     ],
-    tag: 'itch.io',
-    title: 'K.I.B.',
-    caption: 'Kitties in Black — live and playable now on itch.io.'
-  }
-
-  // Example of a gif entry:
-  // { type: 'gif', src: 'assets/some-clip.gif', tag: 'Convoy', title: 'Combo Chain', caption: 'A short combo chain in motion.' },
-
-  // Example of a self-hosted video entry:
-  // { type: 'video', src: 'assets/some-clip.mp4', tag: 'Convoy', title: 'Boss Fight', caption: 'Full boss encounter, first pass.' },
-
-  // Example of an embedded video (YouTube/Vimeo):
-  // { type: 'embed', src: 'https://www.youtube.com/embed/VIDEO_ID', tag: 'Convoy', title: 'Devlog #1', caption: 'First devlog walkthrough.' },
+    // video: 'assets/video/kib.mp4',
+  },
+  {
+    tag: 'GMTK Jam 2026',
+    title: 'Jam Entry',
+    blurb: 'Space shooter built in GameMaker over the jam weekend. Ship-and-rider control scheme with a settable lives system.',
+    // link: 'https://nicklesimba.itch.io/YOUR_JAM_GAME',
+    cta: 'Play the jam build',
+    // poster: 'assets/poster/gmtk.png',
+    // video:  'assets/video/gmtk.mp4',
+  },
+  {
+    tag: 'Unreal',
+    title: 'ProjectScraps',
+    blurb: 'Blueprint-first prototyping in Unreal, translating combat systems built in GML into a node-based engine.',
+    cta: 'Watch the demo',
+    // poster: 'assets/poster/scraps.png',
+    // video:  'assets/video/scraps.mp4',
+  },
+  {
+    tag: 'Tooling',
+    title: 'gm-forge-mcp',
+    blurb: 'A GameMaker Studio integration with 44 tools that let an AI agent edit objects, sprites, rooms, and events inside a live project rather than hand back code to paste.',
+    link: 'https://github.com/nicklesimba/gm-forge-mcp',
+    cta: 'View on GitHub',
+    // poster: 'assets/poster/gm-forge.png',
+  },
 ];
 
-/* ---------------- Hero showcase ---------------- */
-function heroThumbSrc(item) {
-  if (item.type === 'slideshow') return item.images[0];
-  if (item.type === 'video') return item.poster || null;
-  if (item.type === 'embed') return item.thumb || null;
-  return item.thumb || item.src;
-}
+/* Projects only surface where they have real media. A project with no poster
+   and no images is skipped entirely rather than shown with filler art. */
+const posterOf = (p) => p.poster || (p.images && p.images[0]) || null;
+const shown = projects.filter(posterOf);
 
-const heroSlides = portfolioItems
-  .map((item) => ({ src: heroThumbSrc(item), tag: item.tag, title: item.title }))
-  .filter((slide) => slide.src);
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const heroTrack = document.getElementById('hero-showcase-track');
-const heroTagEl = document.getElementById('hero-showcase-tag');
-const heroTitleEl = document.getElementById('hero-showcase-title');
+/* ============================================================================
+   Showcase — still fades into silent preview footage, click opens the project
+   ============================================================================ */
+const track = document.getElementById('showcase-track');
+const dotsWrap = document.getElementById('showcase-dots');
+const linkEl = document.getElementById('showcase-link');
+const linkLabelEl = document.getElementById('showcase-link-label');
+const tagEl = document.getElementById('showcase-tag');
+const titleEl = document.getElementById('showcase-title');
+const ctaEl = document.getElementById('showcase-cta');
 
-if (heroTrack && heroSlides.length) {
-  heroTrack.innerHTML = heroSlides
-    .map((s, i) => `<img class="slide${i === 0 ? ' active' : ''}" src="${s.src}" alt="${s.title}" loading="lazy">`)
-    .join('');
+const STILL_DWELL_MS = 5000;
+const MIN_VIDEO_DWELL_MS = 6000;
 
-  const heroImgs = heroTrack.querySelectorAll('.slide');
-  let heroIndex = 0;
+if (track && shown.length) {
+  track.innerHTML = shown.map((p, i) => `
+    <div class="slide${i === 0 ? ' active' : ''}">
+      <img class="slide-poster" src="${posterOf(p)}" alt="${p.title}"
+           ${i === 0 ? '' : 'loading="lazy"'}>
+      ${p.video && !reduceMotion
+        ? `<video class="slide-video" src="${p.video}" muted loop playsinline preload="none"></video>`
+        : ''}
+    </div>
+  `).join('');
 
-  function updateHeroInfo() {
-    heroTagEl.textContent = heroSlides[heroIndex].tag;
-    heroTitleEl.textContent = heroSlides[heroIndex].title;
-  }
-  updateHeroInfo();
+  dotsWrap.innerHTML = shown.map((p, i) => `
+    <button class="dot${i === 0 ? ' active' : ''}" type="button" role="tab"
+            aria-label="${p.title}" aria-selected="${i === 0}"></button>
+  `).join('');
 
-  function showHeroSlide(newIndex) {
-    heroImgs[heroIndex].classList.remove('active');
-    heroIndex = (newIndex + heroImgs.length) % heroImgs.length;
-    heroImgs[heroIndex].classList.add('active');
-    updateHeroInfo();
-  }
-
-  if (heroImgs.length > 1) {
-    setInterval(() => showHeroSlide(heroIndex + 1), 4000);
-  }
-}
-
-/* ---------------- Render portfolio grid ---------------- */
-const grid = document.getElementById('portfolio-grid');
-
-function mediaThumbHTML(item) {
-  if (item.type === 'video') {
-    return `<video src="${item.src}" muted loop playsinline preload="metadata"></video>`;
-  }
-  if (item.type === 'slideshow') {
-    const slides = item.images.map((src, i) =>
-      `<img class="slide${i === 0 ? ' active' : ''}" src="${src}" alt="${item.title}" loading="lazy">`
-    ).join('');
-    return `
-      <div class="slideshow-track">${slides}</div>
-      <button class="slide-btn slide-prev" type="button" aria-label="Previous screenshot">&#8249;</button>
-      <button class="slide-btn slide-next" type="button" aria-label="Next screenshot">&#8250;</button>
-    `;
-  }
-  // image, gif, and embed thumbnails all render as <img> in the grid
-  // (for embeds you'd typically also set a "thumb" field; falling back to src here)
-  return `<img src="${item.thumb || item.src}" alt="${item.title}" loading="lazy">`;
-}
-
-const SLIDESHOW_INTERVAL_MS = 3500;
-
-function initSlideshow(card, item) {
-  const slides = card.querySelectorAll('.slide');
+  const slides = [...track.querySelectorAll('.slide')];
+  const dots = [...dotsWrap.querySelectorAll('.dot')];
   let index = 0;
   let timer = null;
+  let paused = false;
 
-  function show(newIndex) {
+  function schedule(ms) {
+    clearTimeout(timer);
+    if (slides.length < 2) return;
+    timer = setTimeout(() => { if (!paused) go(index + 1); }, ms);
+  }
+
+  /* Footage is a hover reward, not an autoplay. Thumbnails hold the frame
+     until someone points at them, which also keeps the clips off mobile. */
+  function stopVideo(slide) {
+    const v = slide && slide.querySelector('.slide-video');
+    if (!v) return;
+    slide.classList.remove('playing');
+    v.pause();
+  }
+
+  function startVideo(slide) {
+    const v = slide && slide.querySelector('.slide-video');
+    if (!v) return;
+    v.addEventListener('playing', () => slide.classList.add('playing'), { once: true });
+    v.currentTime = 0;
+    const played = v.play();
+    // A rejected autoplay just leaves the still up, which is a fine fallback.
+    if (played && played.catch) played.catch(() => {});
+  }
+
+  function go(next) {
+    stopVideo(slides[index]);
     slides[index].classList.remove('active');
-    index = (newIndex + slides.length) % slides.length;
+    dots[index].classList.remove('active');
+    dots[index].setAttribute('aria-selected', 'false');
+
+    index = (next + slides.length) % slides.length;
+    const project = shown[index];
+
     slides[index].classList.add('active');
+    dots[index].classList.add('active');
+    dots[index].setAttribute('aria-selected', 'true');
+
+    tagEl.textContent = project.tag;
+    titleEl.textContent = project.title;
+    ctaEl.textContent = project.link ? (project.cta || 'View project') : '';
+
+    if (project.link) {
+      linkEl.href = project.link;
+      linkEl.removeAttribute('aria-hidden');
+      linkEl.tabIndex = 0;
+      linkLabelEl.textContent = `${project.cta || 'View'}: ${project.title}`;
+    } else {
+      linkEl.removeAttribute('href');
+      linkEl.setAttribute('aria-hidden', 'true');
+      linkEl.tabIndex = -1;
+      linkLabelEl.textContent = '';
+    }
+
+    schedule(STILL_DWELL_MS);
   }
 
-  function restartTimer() {
-    if (timer) clearInterval(timer);
-    timer = setInterval(() => show(index + 1), SLIDESHOW_INTERVAL_MS);
-  }
+  dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
 
-  card.querySelector('.slide-prev').addEventListener('click', (e) => {
-    e.stopPropagation();
-    show(index - 1);
-    restartTimer();
-  });
-  card.querySelector('.slide-next').addEventListener('click', (e) => {
-    e.stopPropagation();
-    show(index + 1);
-    restartTimer();
-  });
+  const frame = track.closest('.showcase-frame');
 
-  restartTimer();
+  // Pointing at the frame holds the slide and rolls its clip; leaving resets it.
+  const hold = () => {
+    paused = true;
+    clearTimeout(timer);
+    if (!reduceMotion) startVideo(slides[index]);
+  };
+  const release = () => {
+    paused = false;
+    stopVideo(slides[index]);
+    schedule(STILL_DWELL_MS);
+  };
+  frame.addEventListener('mouseenter', hold);
+  frame.addEventListener('mouseleave', release);
+  frame.addEventListener('focusin', hold);
+  frame.addEventListener('focusout', release);
+
+  // Don't burn cycles on a showcase that is scrolled off screen.
+  new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) schedule(STILL_DWELL_MS);
+    else { clearTimeout(timer); stopVideo(slides[index]); }
+  }, { threshold: 0.25 }).observe(frame);
+
+  go(0);
+} else if (track) {
+  track.closest('.showcase').style.display = 'none';
 }
 
-portfolioItems.forEach((item, i) => {
-  const card = document.createElement('article');
-  card.className = 'card reveal';
-  card.style.setProperty('--i', i);
-  const isSlideshow = item.type === 'slideshow';
-  const titleHTML = isSlideshow
-    ? `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
-    : item.title;
-  card.innerHTML = `
-    <div class="card-media${isSlideshow ? ' slideshow' : ''}">
-      <span class="card-tag">${item.tag}</span>
-      ${mediaThumbHTML(item)}
-      <div class="card-expand" aria-hidden="true">&#8599;</div>
-    </div>
-    <div class="card-body">
-      <h3>${titleHTML}</h3>
-      <p>${item.caption}</p>
-    </div>
-  `;
+/* ============================================================================
+   Project list — every row is clickable. Rows with a link open it; rows
+   without one open their stills in the lightbox.
+   ============================================================================ */
+const list = document.getElementById('project-list');
 
-  if (isSlideshow) {
-    initSlideshow(card, item);
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.slide-btn') || e.target.closest('.card-body a')) return;
-      window.open(item.link, '_blank', 'noopener');
-    });
+document.getElementById('project-count').textContent =
+  `${String(projects.length).padStart(2, '0')} entries`;
+
+function thumbHTML(project) {
+  const still = posterOf(project);
+  if (still) return `<img src="${still}" alt="${project.title}" loading="lazy">`;
+  // No capture yet: a flat tile, never filler art passed off as gameplay.
+  return `<span class="thumb-empty" aria-hidden="true">${project.title.charAt(0)}</span>`;
+}
+
+projects.forEach((project, i) => {
+  const row = document.createElement(project.link ? 'a' : 'button');
+  row.className = 'project-row reveal';
+  row.style.setProperty('--i', Math.min(i, 6));
+
+  if (project.link) {
+    row.href = project.link;
+    row.target = '_blank';
+    row.rel = 'noopener';
   } else {
-    card.addEventListener('click', () => openLightbox(i));
+    row.type = 'button';
+    const stillIndex = shown.indexOf(project);
+    row.addEventListener('click', () => {
+      if (stillIndex > -1) openLightbox(stillIndex);
+    });
+    if (stillIndex === -1) row.classList.add('is-pending');
   }
 
-  grid.appendChild(card);
+  row.innerHTML = `
+    <span class="project-index">${String(i + 1).padStart(2, '0')}</span>
+    <span class="project-thumb">${thumbHTML(project)}</span>
+    <span class="project-info">
+      <span class="project-tag">${project.tag}</span>
+      <span class="project-title">${project.title}</span>
+      <span class="project-blurb">${project.blurb}</span>
+    </span>
+    <span class="project-cta">${project.link ? (project.cta || 'View project') : 'Coming soon'}</span>
+    <span class="project-arrow" aria-hidden="true">&#8594;</span>
+  `;
+
+  list.appendChild(row);
 });
 
-/* ---------------- Lightbox ---------------- */
+/* ============================================================================
+   Lightbox — full-size stills for projects with no external link
+   ============================================================================ */
 const lightbox = document.getElementById('lightbox');
 const lightboxMedia = document.getElementById('lightbox-media');
 const lightboxCaption = document.getElementById('lightbox-caption');
-const btnClose = document.getElementById('lightbox-close');
-const btnPrev = document.getElementById('lightbox-prev');
-const btnNext = document.getElementById('lightbox-next');
-
 let currentIndex = 0;
 
-function mediaFullHTML(item) {
-  switch (item.type) {
-    case 'video':
-      return `<video src="${item.src}" controls autoplay playsinline></video>`;
-    case 'embed':
-      return `<iframe src="${item.src}" width="960" height="540" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-    case 'gif':
-    case 'image':
-    default:
-      return `<img src="${item.src}" alt="${item.title}">`;
-  }
+function renderLightbox() {
+  const project = shown[currentIndex];
+  lightboxMedia.innerHTML = project.video
+    ? `<video src="${project.video}" controls autoplay muted loop playsinline></video>`
+    : `<img src="${posterOf(project)}" alt="${project.title}">`;
+  lightboxCaption.textContent = `${project.title} — ${project.blurb}`;
 }
 
 function openLightbox(index) {
@@ -212,23 +281,15 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
-function renderLightbox() {
-  const item = portfolioItems[currentIndex];
-  lightboxMedia.innerHTML = mediaFullHTML(item);
-  lightboxCaption.textContent = item.caption;
-}
-
 function step(delta) {
-  currentIndex = (currentIndex + delta + portfolioItems.length) % portfolioItems.length;
+  currentIndex = (currentIndex + delta + shown.length) % shown.length;
   renderLightbox();
 }
 
-btnClose.addEventListener('click', closeLightbox);
-btnPrev.addEventListener('click', () => step(-1));
-btnNext.addEventListener('click', () => step(1));
-lightbox.addEventListener('click', (e) => {
-  if (e.target === lightbox) closeLightbox();
-});
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox-prev').addEventListener('click', () => step(-1));
+document.getElementById('lightbox-next').addEventListener('click', () => step(1));
+lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 document.addEventListener('keydown', (e) => {
   if (!lightbox.classList.contains('open')) return;
   if (e.key === 'Escape') closeLightbox();
@@ -236,103 +297,34 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') step(1);
 });
 
-/* ---------------- Scroll reveal ---------------- */
-const revealEls = document.querySelectorAll('.reveal');
+/* ============================================================================
+   Scroll reveal + nav state
+   ============================================================================ */
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('in-view');
-      revealObserver.unobserve(entry.target);
-    }
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('in-view');
+    revealObserver.unobserve(entry.target);
   });
 }, { threshold: 0.15 });
-revealEls.forEach((el) => revealObserver.observe(el));
+document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
 
-/* ---------------- Nav scroll state + active link ---------------- */
 const nav = document.getElementById('nav');
-const navLinks = document.querySelectorAll('[data-nav]');
-const sections = ['work', 'about', 'contact'].map((id) => document.getElementById(id));
-
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 20);
 }, { passive: true });
 
+const navLinks = document.querySelectorAll('[data-nav]');
 const sectionObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      navLinks.forEach((link) => {
-        link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
-      });
-    }
+    if (!entry.isIntersecting) return;
+    navLinks.forEach((link) => {
+      link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
+    });
   });
 }, { threshold: 0.4 });
-sections.forEach((s) => s && sectionObserver.observe(s));
+['work', 'contact']
+  .map((id) => document.getElementById(id))
+  .forEach((s) => s && sectionObserver.observe(s));
 
-/* ---------------- Cursor glow ---------------- */
-const glow = document.getElementById('cursor-glow');
-let glowVisible = false;
-window.addEventListener('mousemove', (e) => {
-  glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-  if (!glowVisible) {
-    glow.style.opacity = '1';
-    glowVisible = true;
-  }
-});
-window.addEventListener('mouseleave', () => {
-  glow.style.opacity = '0';
-  glowVisible = false;
-});
-
-/* ---------------- Particle background ---------------- */
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-let dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-function resizeCanvas() {
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  initParticles();
-}
-
-function initParticles() {
-  const count = Math.floor((window.innerWidth * window.innerHeight) / 22000);
-  particles = Array.from({ length: count }, () => ({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    r: Math.random() * 1.4 + 0.4,
-    vx: (Math.random() - 0.5) * 0.15,
-    vy: (Math.random() - 0.5) * 0.15,
-    hue: Math.random() > 0.5 ? '90, 209, 255' : '160, 107, 255',
-    alpha: Math.random() * 0.5 + 0.15
-  }));
-}
-
-function tick() {
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  particles.forEach((p) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.x < 0) p.x = window.innerWidth;
-    if (p.x > window.innerWidth) p.x = 0;
-    if (p.y < 0) p.y = window.innerHeight;
-    if (p.y > window.innerHeight) p.y = 0;
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${p.hue}, ${p.alpha})`;
-    ctx.fill();
-  });
-  requestAnimationFrame(tick);
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-requestAnimationFrame(tick);
-
-/* ---------------- Misc ---------------- */
 document.getElementById('year').textContent = new Date().getFullYear();
