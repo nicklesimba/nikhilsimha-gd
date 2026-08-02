@@ -240,11 +240,12 @@ button {
   width: 100%;
   flex: 1;
   min-height: min(58vh, 460px);
+  max-height: 82vh;
   overflow: hidden;
   border: 1px solid var(--rule-strong);
   /* Left edge sits flush on the hero divider, so it needs no rule of its own. */
   border-left: 0;
-  background: var(--bg-sunk);
+  background: #2e2c34;
   transition: border-color 0.2s ease;
 }
 .showcase-frame:hover { border-color: var(--violet); }
@@ -260,13 +261,15 @@ button {
 }
 .slide.active { opacity: 1; }
 
+/* Never crop the art. The frame grows to whatever height it can, and the
+   whole thumbnail sits inside it. */
 .slide-poster,
 .slide-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 /* Footage fades up over its own thumbnail, and only while hovered. */
