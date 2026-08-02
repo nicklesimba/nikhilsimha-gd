@@ -95,7 +95,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
    Showcase — still fades into silent preview footage, click opens the project
    ============================================================================ */
 const track = document.getElementById('showcase-track');
-const dotsWrap = document.getElementById('showcase-dots');
+const railWrap = document.getElementById('showcase-rail');
 const linkEl = document.getElementById('showcase-link');
 const linkLabelEl = document.getElementById('showcase-link-label');
 const tagEl = document.getElementById('showcase-tag');
@@ -116,13 +116,21 @@ if (track && previewSlides.length) {
     </div>
   `).join('');
 
-  dotsWrap.innerHTML = previewSlides.map((s, i) => `
-    <button class="dot${i === 0 ? ' active' : ''}" type="button" role="tab"
-            aria-label="${s.project.title}" aria-selected="${i === 0}"></button>
-  `).join('');
+  /* Thumbnail rail. Hovering one shows it; clicking one goes to the project. */
+  railWrap.innerHTML = previewSlides.map((s, i) => {
+    const tag = s.project.link ? 'a' : 'button';
+    const attrs = s.project.link
+      ? `href="${s.project.link}" target="_blank" rel="noopener"`
+      : 'type="button"';
+    return `
+      <${tag} class="rail-thumb${i === 0 ? ' active' : ''}" ${attrs} role="tab"
+              aria-label="${s.project.title}" aria-selected="${i === 0}">
+        <img src="${s.src}" alt="" loading="lazy">
+      </${tag}>`;
+  }).join('');
 
   const slides = [...track.querySelectorAll('.slide')];
-  const dots = [...dotsWrap.querySelectorAll('.dot')];
+  const rail = [...railWrap.querySelectorAll('.rail-thumb')];
   let index = 0;
   let timer = null;
   let paused = false;
@@ -155,15 +163,15 @@ if (track && previewSlides.length) {
   function go(next) {
     stopVideo(slides[index]);
     slides[index].classList.remove('active');
-    dots[index].classList.remove('active');
-    dots[index].setAttribute('aria-selected', 'false');
+    rail[index].classList.remove('active');
+    rail[index].setAttribute('aria-selected', 'false');
 
     index = (next + slides.length) % slides.length;
     const project = previewSlides[index].project;
 
     slides[index].classList.add('active');
-    dots[index].classList.add('active');
-    dots[index].setAttribute('aria-selected', 'true');
+    rail[index].classList.add('active');
+    rail[index].setAttribute('aria-selected', 'true');
 
     tagEl.textContent = project.tag;
     titleEl.textContent = project.title;
@@ -184,7 +192,16 @@ if (track && previewSlides.length) {
     schedule(STILL_DWELL_MS);
   }
 
-  dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
+  // Hovering a thumbnail jumps to it and rolls that slide's clip. The click
+  // itself is left alone: these are links straight to the project.
+  rail.forEach((thumb, i) => {
+    const show = () => {
+      if (i !== index) go(i);
+      if (!reduceMotion) startVideo(slides[i]);
+    };
+    thumb.addEventListener('mouseenter', show);
+    thumb.addEventListener('focus', show);
+  });
 
   const frame = track.closest('.showcase-frame');
 
