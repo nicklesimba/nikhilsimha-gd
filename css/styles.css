@@ -132,7 +132,9 @@ main { position: relative; z-index: 1; }
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  padding: 14px var(--gutter);
+  padding: 12px var(--gutter);
+  /* Body line-height is set for prose; the bar should hug its own text. */
+  line-height: 1.2;
   /* Translucent enough for the preview's colour to bloom through it. */
   background: rgba(244, 242, 238, 0.74);
   backdrop-filter: blur(10px) saturate(160%);
@@ -142,15 +144,15 @@ main { position: relative; z-index: 1; }
 
 .nav-logo {
   font-weight: 700;
-  letter-spacing: 0.14em;
-  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  font-size: 1rem;
   text-transform: uppercase;
 }
 .nav-logo span { color: var(--violet); }
 
-.nav-links { display: flex; gap: 26px; }
+.nav-links { display: flex; gap: 28px; }
 .nav-links a {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
