@@ -111,7 +111,7 @@ button {
 /* ----------------------------------------- Landing: overview | preview ---- */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 430px) minmax(0, 1fr);
   align-items: start;
   max-width: var(--max-width);
   margin: 0 auto;
@@ -121,7 +121,7 @@ button {
 
 /* The vertical rule that splits left side from right side. */
 .identity {
-  padding: clamp(40px, 5vw, 64px) clamp(28px, 3.5vw, 48px) clamp(40px, 5vw, 64px) var(--gutter);
+  padding: clamp(22px, 2.6vw, 32px) clamp(28px, 3.5vw, 48px) clamp(40px, 5vw, 64px) var(--gutter);
   border-right: 1px solid var(--rule);
   min-width: 0;
 }
@@ -132,7 +132,7 @@ button {
   font-size: 0.68rem;
   letter-spacing: 0.24em;
   color: var(--text-faint);
-  margin-bottom: 26px;
+  margin-bottom: 18px;
 }
 
 .portrait {
@@ -169,8 +169,9 @@ button {
 
 .identity-tagline {
   color: var(--text-dim);
-  font-size: 0.86rem;
-  line-height: 1.7;
+  font-size: 0.78rem;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
   margin: 0 0 22px;
 }
 
@@ -235,7 +236,7 @@ button {
 
 /* ----------------------------------------------------- Preview panel ------ */
 .showcase {
-  padding: clamp(40px, 5vw, 64px) var(--gutter) clamp(40px, 5vw, 64px) clamp(28px, 3.5vw, 48px);
+  padding: clamp(22px, 2.6vw, 32px) var(--gutter) clamp(40px, 5vw, 64px) clamp(28px, 3.5vw, 48px);
   min-width: 0;
 }
 
@@ -245,7 +246,7 @@ button {
   font-size: 0.68rem;
   letter-spacing: 0.24em;
   color: var(--text-faint);
-  margin-bottom: 26px;
+  margin-bottom: 18px;
 }
 
 .showcase-frame {
