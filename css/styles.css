@@ -117,35 +117,12 @@ a, .project-row, .rail-thumb, .showcase-link {
   height: 150%;
   object-fit: cover;
   filter: blur(90px) saturate(2.4) brightness(1.2);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 /* The landing sits above the spill; everything below it is untouched. */
 main { position: relative; z-index: 1; }
 
-/* While the spill is up, the type over it goes white. Scoped to the nav and
-   the overview, the two regions the spill actually reaches. */
-.spilling .nav-logo,
-.spilling .nav-links a,
-.spilling .identity-name,
-.spilling .identity-role,
-.spilling .identity-tagline,
-.spilling .identity-tags li,
-.spilling .identity-links a,
-.spilling .btn-ghost {
-  color: #ffffff;
-}
-.spilling .nav-logo span,
-.spilling .identity-name span { color: #ffffff; }
-.spilling .identity-tags li { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.12); }
-.spilling .identity-links a { border-bottom-color: rgba(255, 255, 255, 0.55); }
-.spilling .btn-ghost { border-color: rgba(255, 255, 255, 0.7); }
-
-.nav-logo, .nav-logo span, .nav-links a,
-.identity-name, .identity-name span, .identity-role,
-.identity-tagline, .identity-tags li, .identity-links a, .btn-ghost {
-  transition: color 0.45s ease, border-color 0.45s ease, background 0.45s ease;
-}
 
 /* ---------------------------------------------------------- Nav ---------- */
 .nav {

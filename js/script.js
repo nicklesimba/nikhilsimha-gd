@@ -284,12 +284,10 @@ if (track && previewProjects.length) {
       v.addEventListener('playing', () => {
         slide.classList.add('playing');
         if (ambient) ambient.classList.add('on');
-        document.documentElement.classList.add('spilling');
       });
       v.addEventListener('pause', () => {
         slide.classList.remove('playing');
         if (ambient) ambient.classList.remove('on');
-        document.documentElement.classList.remove('spilling');
       });
     });
 
