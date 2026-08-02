@@ -370,16 +370,19 @@ button {
 .work {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: clamp(44px, 6vw, 76px) var(--gutter) clamp(56px, 7vw, 90px);
+  padding: 0 0 clamp(56px, 7vw, 90px);
 }
 
+/* A band of its own, edge to edge, sitting apart from the list below it. */
 .section-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: 14px;
-  margin-bottom: 0;
+  margin-top: clamp(44px, 6vw, 76px);
+  padding: 16px var(--gutter);
+  background: var(--bg-sunk);
+  border-top: 1px solid var(--text);
   border-bottom: 1px solid var(--text);
 }
 .section-head h2 {
@@ -404,16 +407,16 @@ button {
   align-items: center;
   gap: clamp(14px, 2vw, 26px);
   width: 100%;
-  padding: 18px 0;
+  /* Row spans the full width; only its contents sit in from the edge. */
+  padding: 18px var(--gutter);
   text-align: left;
   border-bottom: 1px solid var(--rule);
   cursor: pointer;
-  transition: background 0.18s ease, padding 0.18s ease;
+  transition: background 0.18s ease, padding-left 0.18s ease;
 }
 .project-row:hover {
   background: rgba(255, 255, 255, 0.62);
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: calc(var(--gutter) + 10px);
 }
 
 .project-index {
@@ -488,7 +491,7 @@ button {
 }
 .project-row:hover .project-cta { color: var(--text-dim); }
 .project-row.is-pending { cursor: default; }
-.project-row.is-pending:hover { background: transparent; padding-left: 0; padding-right: 0; }
+.project-row.is-pending:hover { background: transparent; padding-left: var(--gutter); }
 
 .project-arrow {
   font-size: 1rem;
@@ -635,14 +638,9 @@ button {
   .project-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: clamp(36px, 3.4vw, 64px);
   }
   /* A vertical rule between the two stacks, matching the hero split. */
-  .project-row:nth-child(2n) {
-    border-left: 1px solid var(--rule);
-    padding-left: clamp(36px, 3.4vw, 64px);
-  }
-  .project-row:nth-child(2n):hover { padding-left: calc(clamp(36px, 3.4vw, 64px) + 10px); }
+  .project-row:nth-child(2n) { border-left: 1px solid var(--rule); }
   .project-row { grid-template-columns: 34px 172px minmax(0, 1fr) auto 22px; }
 }
 
