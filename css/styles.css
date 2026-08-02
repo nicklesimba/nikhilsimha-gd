@@ -15,7 +15,7 @@
   --blue: #3f7fbf;
   --blue-soft: #d3e4f5;
 
-  --rail-w: clamp(104px, 9vw, 156px);
+  --rail-w: clamp(232px, 24vw, 340px);
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Full bleed: the layout always fills the viewport, gutters aside. */
   --max-width: 100%;
@@ -284,23 +284,26 @@ button {
 .showcase-link { position: absolute; inset: 0; z-index: 2; }
 .showcase-link:not([href]) { pointer-events: none; }
 
-/* Text sits above the frame on the page, so it stays selectable. */
+/* Text rides at the top of the column. Selectable, so it can be copied. */
 .showcase-header {
-  padding: clamp(18px, 2.2vw, 26px) clamp(20px, 2.4vw, 30px) clamp(14px, 1.8vw, 20px);
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 3px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(18, 17, 20, 0.16);
 }
 .showcase-tag {
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--blue);
 }
 .showcase-title {
   font-weight: 600;
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-size: 0.98rem;
+  line-height: 1.35;
   letter-spacing: -0.01em;
   color: var(--text);
   border-bottom: 1px solid transparent;
@@ -311,22 +314,22 @@ button {
   border-bottom-color: var(--violet);
 }
 .showcase-blurb {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  line-height: 1.65;
+  margin: 4px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.6;
   color: var(--text-dim);
-  max-width: 78ch;
 }
 .showcase-cta {
-  margin-top: 4px;
-  font-size: 0.68rem;
+  margin-top: 6px;
+  font-size: 0.64rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
 .showcase-cta:empty { display: none; }
 
-/* Thumbnail rail down the right edge of the frame. */
+/* Right aligned column: caption on top, thumbnails under it, floating over
+   the picture rather than carving space out of it. */
 .showcase-rail {
   position: absolute;
   top: 0; right: 0; bottom: 0;
@@ -334,8 +337,8 @@ button {
   width: var(--rail-w);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
+  gap: 14px;
+  padding: clamp(16px, 1.8vw, 22px);
   /* Scroll chains straight through to the page: the rail must never trap it. */
   overflow-y: auto;
   overscroll-behavior: auto;
@@ -360,9 +363,16 @@ button {
 .showcase-rail::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.28); }
 .showcase-rail:empty { display: none; }
 
+/* Two up, so a handful of stills fit without the column needing to scroll. */
+.rail-thumbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+}
+
 .rail-thumb {
   position: relative;
-  flex: 0 0 auto;
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -388,7 +398,7 @@ button {
 }
 
 @media (max-width: 900px) {
-  :root { --rail-w: 84px; }
+  :root { --rail-w: min(58vw, 260px); }
   .hero { grid-template-columns: 1fr; }
   .showcase {
     order: -1;                                   /* visuals lead on mobile */

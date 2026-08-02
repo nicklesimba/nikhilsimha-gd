@@ -70,20 +70,22 @@
 
       <!-- ---------- Showcase: still fades into silent preview footage ---------- -->
       <div class="showcase">
-        <!-- Selectable text. Only the title inside it is a link. -->
-        <div class="showcase-header">
-          <span class="showcase-tag" id="showcase-tag"></span>
-          <a class="showcase-title" id="showcase-title" target="_blank" rel="noopener"></a>
-          <p class="showcase-blurb" id="showcase-blurb"></p>
-          <span class="showcase-cta" id="showcase-cta"></span>
-        </div>
-
         <div class="showcase-frame">
           <div class="showcase-track" id="showcase-track"></div>
           <a class="showcase-link" id="showcase-link" target="_blank" rel="noopener">
             <span class="sr-only" id="showcase-link-label"></span>
           </a>
-          <div class="showcase-rail" id="showcase-rail" role="tablist" aria-label="Preview screenshots"></div>
+
+          <aside class="showcase-rail" id="showcase-rail">
+            <!-- Selectable text. Only the title inside it is a link. -->
+            <div class="showcase-header">
+              <span class="showcase-tag" id="showcase-tag"></span>
+              <a class="showcase-title" id="showcase-title" target="_blank" rel="noopener"></a>
+              <p class="showcase-blurb" id="showcase-blurb"></p>
+              <span class="showcase-cta" id="showcase-cta"></span>
+            </div>
+            <div class="rail-thumbs" id="showcase-rail-thumbs" role="tablist" aria-label="Preview screenshots"></div>
+          </aside>
         </div>
       </div>
     </section>

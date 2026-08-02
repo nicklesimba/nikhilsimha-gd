@@ -99,7 +99,8 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
    Showcase — still fades into silent preview footage, click opens the project
    ============================================================================ */
 const track = document.getElementById('showcase-track');
-const railWrap = document.getElementById('showcase-rail');
+const railEl = document.getElementById('showcase-rail');
+const railThumbs = document.getElementById('showcase-rail-thumbs');
 const linkEl = document.getElementById('showcase-link');
 const linkLabelEl = document.getElementById('showcase-link-label');
 const tagEl = document.getElementById('showcase-tag');
@@ -122,7 +123,7 @@ if (track && previewSlides.length) {
   `).join('');
 
   /* Thumbnail rail. Hovering one shows it; clicking one goes to the project. */
-  railWrap.innerHTML = previewSlides.map((s, i) => {
+  railThumbs.innerHTML = previewSlides.map((s, i) => {
     const tag = s.project.link ? 'a' : 'button';
     const attrs = s.project.link
       ? `href="${s.project.link}" target="_blank" rel="noopener"`
@@ -135,10 +136,20 @@ if (track && previewSlides.length) {
   }).join('');
 
   const slides = [...track.querySelectorAll('.slide')];
-  const rail = [...railWrap.querySelectorAll('.rail-thumb')];
+  const rail = [...railThumbs.querySelectorAll('.rail-thumb')];
   let index = 0;
   let timer = null;
   let paused = false;
+
+  /* Drive the crossfade off the media's own events, bound once. play() is a
+     promise, so a listener added per call could fire after a later pause and
+     bring the clip back over a still the viewer had deliberately selected. */
+  slides.forEach((slide) => {
+    const v = slide.querySelector('.slide-video');
+    if (!v) return;
+    v.addEventListener('playing', () => slide.classList.add('playing'));
+    v.addEventListener('pause', () => slide.classList.remove('playing'));
+  });
 
   function schedule(ms) {
     clearTimeout(timer);
@@ -150,18 +161,16 @@ if (track && previewSlides.length) {
      until someone points at them, which also keeps the clips off mobile. */
   function stopVideo(slide) {
     const v = slide && slide.querySelector('.slide-video');
-    if (!v) return;
-    slide.classList.remove('playing');
-    v.pause();
+    if (v) v.pause();
   }
 
   function startVideo(slide) {
     const v = slide && slide.querySelector('.slide-video');
     if (!v) return;
-    v.addEventListener('playing', () => slide.classList.add('playing'), { once: true });
     // No seek to zero: coming back to a clip resumes where it left off.
     const played = v.play();
-    // A rejected autoplay just leaves the still up, which is a fine fallback.
+    // A rejected play (autoplay policy, or a pause landing first) just leaves
+    // the still up, which is the correct fallback either way.
     if (played && played.catch) played.catch(() => {});
   }
 
@@ -211,8 +220,8 @@ if (track && previewSlides.length) {
     thumb.addEventListener('focus', show);
   });
 
-  // Back off the rail but still inside the frame: the clip picks up again.
-  railWrap.addEventListener('mouseleave', () => {
+  // Back off the column but still inside the frame: the clip picks up again.
+  railEl.addEventListener('mouseleave', () => {
     if (paused && !reduceMotion) startVideo(slides[index]);
   });
 
