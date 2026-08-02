@@ -159,19 +159,25 @@ if (track && previewProjects.length) {
 
   /* Footage is a hover reward, not an autoplay. Thumbnails hold the frame
      until someone points at them, which also keeps the clips off mobile. */
+  /* Both the picture and its blurred backdrop are clips, so they start and
+     stop together and the backdrop is nudged onto the picture's timestamp. */
   function stopVideo(slide) {
-    const v = slide && slide.querySelector('.slide-video');
-    if (v) v.pause();
+    if (!slide) return;
+    slide.querySelectorAll('video').forEach((v) => v.pause());
   }
 
   function startVideo(slide) {
-    const v = slide && slide.querySelector('.slide-video');
-    if (!v) return;
+    if (!slide) return;
+    const fg = slide.querySelector('.slide-video');
+    const bg = slide.querySelector('.slide-backdrop-video');
+    if (fg && bg && Number.isFinite(fg.currentTime)) bg.currentTime = fg.currentTime;
     // No seek to zero: coming back to a clip resumes where it left off.
-    const played = v.play();
-    // A rejected play (autoplay policy, or a pause landing first) just leaves
-    // the still up, which is the correct fallback either way.
-    if (played && played.catch) played.catch(() => {});
+    slide.querySelectorAll('video').forEach((v) => {
+      const played = v.play();
+      // A rejected play (autoplay policy, or a pause landing first) just
+      // leaves the still up, which is the correct fallback either way.
+      if (played && played.catch) played.catch(() => {});
+    });
   }
 
   function go(next) {
@@ -226,6 +232,9 @@ if (track && previewProjects.length) {
     track.innerHTML = previewSlides.map((s, i) => `
       <div class="slide${i === 0 ? ' active' : ''}">
         ${s.src ? `<img class="slide-backdrop" src="${s.src}" alt="" aria-hidden="true">` : ''}
+        ${s.video && !reduceMotion
+          ? `<video class="slide-backdrop-video" src="${s.video}" muted loop playsinline preload="none" aria-hidden="true"></video>`
+          : ''}
         ${s.src ? `<img class="slide-poster" src="${s.src}" alt="${s.project.title}">` : ''}
         ${s.video && !reduceMotion
           ? `<video class="slide-video" src="${s.video}" muted loop playsinline preload="none"></video>`

@@ -287,8 +287,10 @@ a, .project-row, .rail-thumb, .showcase-link {
 .slide.active { opacity: 1; }
 
 /* Backdrop: the same frame scaled to cover and blurred, so the window is
-   always full. Overscaled because a blur of this radius bleeds at the edges. */
-.slide-backdrop {
+   always full. Overscaled because a blur of this radius bleeds at the edges.
+   The clip carries its own backdrop so the blur moves with the footage. */
+.slide-backdrop,
+.slide-backdrop-video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -299,17 +301,29 @@ a, .project-row, .rail-thumb, .showcase-link {
   filter: blur(28px) saturate(1.15) brightness(0.82);
   transform: scale(1.18);
 }
+.slide-backdrop-video {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.slide.playing .slide-backdrop-video { opacity: 1; }
 
 /* Foreground: the whole frame, fitted and then eased in a touch so the blur
-   reads as a deliberate surround rather than a seam. It is centred in the
-   clear span between the two arrows, not in the frame, so the controls and
-   the column never sit over the picture. */
+   reads as a deliberate surround rather than a seam. Centred in the clear
+   span between the two arrows, not in the frame, so the controls and the
+   column never sit over the picture.
+
+   The box is sized explicitly rather than by opposing insets: an absolutely
+   positioned replaced element resolves width:auto to its own intrinsic size,
+   which pins it top left at its natural dimensions and ignores the far inset.
+   A video with preload="none" has no intrinsic size to report yet, so it
+   would fall back to the 300x150 default. */
 .slide-poster,
 .slide-video {
   position: absolute;
-  inset: 0 calc(var(--rail-w) + var(--arrow-w)) 0 var(--arrow-w);
-  width: auto;
-  height: auto;
+  top: 0;
+  left: var(--arrow-w);
+  width: calc(100% - var(--rail-w) - var(--arrow-w) * 2);
+  height: 100%;
   object-fit: contain;
   transform: scale(0.97);
   display: block;
@@ -318,7 +332,8 @@ a, .project-row, .rail-thumb, .showcase-link {
 /* Nothing to steer clear of when there is only one project to show. */
 .showcase-frame.no-arrows .slide-poster,
 .showcase-frame.no-arrows .slide-video {
-  inset: 0 var(--rail-w) 0 0;
+  left: 0;
+  width: calc(100% - var(--rail-w));
 }
 /* Footage fades up over its own thumbnail, and only while hovered. */
 .slide-video {
