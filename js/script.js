@@ -10,11 +10,14 @@
             leave null and the card simply is not clickable.
    cta      Short label for the click target, e.g. "Play on itch.io",
             "Watch the demo". Shown on hover in the showcase.
-   poster   Still image. REQUIRED for a project to appear in the top showcase.
-   video    Optional silent preview clip (a few seconds). The poster fades into
-            it automatically. Use .mp4 (H.264) — widest browser support.
-   images   Optional extra stills. If present, the grid card becomes a
-            slideshow. images[0] is used as the poster if poster is omitted.
+   thumb    One static image, used for this project's row in the list below.
+   images   Stills for the preview slideshow up top. List as many as you like;
+            each becomes its own slide and links back to this project.
+   video    Optional silent clip (a few seconds), played on hover over the
+            project's first preview slide. Use .mp4 (H.264) for browser support.
+
+   The preview and the list are deliberately separate: images[] feeds the
+   slideshow, thumb feeds the row. A project needs at least one of them.
 
    Drop media in:  assets/poster/   and   assets/video/
    ============================================================================ */
@@ -25,21 +28,23 @@ const projects = [
     blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
     // link: 'https://www.youtube.com/watch?v=YOUR_WIP_DEMO',
     cta: 'Watch the demo',
-    // poster: 'assets/poster/convoy.png',
+    // thumb:  'assets/poster/convoy.png',
+    // images: ['assets/poster/convoy.png'],
     // video:  'assets/video/convoy.mp4',
   },
   {
     tag: 'itch.io',
     title: 'K.I.B.',
-    blurb: 'Kitties in Black — a finished, playable release. Enemy patterns, boss encounter, and full game loop.',
+    blurb: 'Kitties in Black, a finished and playable release. Enemy patterns, boss encounter, and full game loop.',
     link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
     cta: 'Play on itch.io',
+    thumb: 'assets/kib/kib-thumb.png',
     images: [
-      'assets/kib/kib-shot-1.png',
-      'assets/kib/kib-shot-2.png',
-      'assets/kib/kib-shot-3.png',
-      'assets/kib/kib-shot-4.png',
-      'assets/kib/kib-gato-boss.png'
+      'assets/kib/kib-sc-1.png',
+      'assets/kib/kib-sc-2.png',
+      'assets/kib/kib-sc-3.png',
+      'assets/kib/kib-sc-4.png',
+      'assets/kib/gato-boss.png'
     ],
     // video: 'assets/video/kib.mp4',
   },
@@ -49,7 +54,8 @@ const projects = [
     blurb: 'Space shooter built in GameMaker over the jam weekend. Ship-and-rider control scheme with a settable lives system.',
     // link: 'https://nicklesimba.itch.io/YOUR_JAM_GAME',
     cta: 'Play the jam build',
-    // poster: 'assets/poster/gmtk.png',
+    // thumb:  'assets/poster/gmtk.png',
+    // images: ['assets/poster/gmtk.png'],
     // video:  'assets/video/gmtk.mp4',
   },
   {
@@ -57,7 +63,8 @@ const projects = [
     title: 'ProjectScraps',
     blurb: 'Blueprint-first prototyping in Unreal, translating combat systems built in GML into a node-based engine.',
     cta: 'Watch the demo',
-    // poster: 'assets/poster/scraps.png',
+    // thumb:  'assets/poster/scraps.png',
+    // images: ['assets/poster/scraps.png'],
     // video:  'assets/video/scraps.mp4',
   },
   {
@@ -66,14 +73,21 @@ const projects = [
     blurb: 'A GameMaker Studio integration with 44 tools that let an AI agent edit objects, sprites, rooms, and events inside a live project rather than hand back code to paste.',
     link: 'https://github.com/nicklesimba/gm-forge-mcp',
     cta: 'View on GitHub',
-    // poster: 'assets/poster/gm-forge.png',
+    // thumb: 'assets/poster/gm-forge.png',
   },
 ];
 
-/* Projects only surface where they have real media. A project with no poster
-   and no images is skipped entirely rather than shown with filler art. */
-const posterOf = (p) => p.poster || (p.images && p.images[0]) || null;
-const shown = projects.filter(posterOf);
+/* The list row takes the static thumb; the preview takes every still. */
+const thumbOf = (p) => p.thumb || (p.images && p.images[0]) || null;
+
+const previewSlides = projects.flatMap((project) =>
+  (project.images || []).map((src, i) => ({
+    src,
+    project,
+    // A project's clip belongs to its first still, not to all of them.
+    video: i === 0 ? project.video : null
+  }))
+);
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -91,20 +105,20 @@ const ctaEl = document.getElementById('showcase-cta');
 const STILL_DWELL_MS = 5000;
 const MIN_VIDEO_DWELL_MS = 6000;
 
-if (track && shown.length) {
-  track.innerHTML = shown.map((p, i) => `
+if (track && previewSlides.length) {
+  track.innerHTML = previewSlides.map((s, i) => `
     <div class="slide${i === 0 ? ' active' : ''}">
-      <img class="slide-poster" src="${posterOf(p)}" alt="${p.title}"
+      <img class="slide-poster" src="${s.src}" alt="${s.project.title}"
            ${i === 0 ? '' : 'loading="lazy"'}>
-      ${p.video && !reduceMotion
-        ? `<video class="slide-video" src="${p.video}" muted loop playsinline preload="none"></video>`
+      ${s.video && !reduceMotion
+        ? `<video class="slide-video" src="${s.video}" muted loop playsinline preload="none"></video>`
         : ''}
     </div>
   `).join('');
 
-  dotsWrap.innerHTML = shown.map((p, i) => `
+  dotsWrap.innerHTML = previewSlides.map((s, i) => `
     <button class="dot${i === 0 ? ' active' : ''}" type="button" role="tab"
-            aria-label="${p.title}" aria-selected="${i === 0}"></button>
+            aria-label="${s.project.title}" aria-selected="${i === 0}"></button>
   `).join('');
 
   const slides = [...track.querySelectorAll('.slide')];
@@ -145,7 +159,7 @@ if (track && shown.length) {
     dots[index].setAttribute('aria-selected', 'false');
 
     index = (next + slides.length) % slides.length;
-    const project = shown[index];
+    const project = previewSlides[index].project;
 
     slides[index].classList.add('active');
     dots[index].classList.add('active');
@@ -211,7 +225,7 @@ document.getElementById('project-count').textContent =
   `${String(projects.length).padStart(2, '0')} entries`;
 
 function thumbHTML(project) {
-  const still = posterOf(project);
+  const still = thumbOf(project);
   if (still) return `<img src="${still}" alt="${project.title}" loading="lazy">`;
   // No capture yet: a flat tile, never filler art passed off as gameplay.
   return `<span class="thumb-empty" aria-hidden="true">${project.title.charAt(0)}</span>`;
@@ -228,11 +242,11 @@ projects.forEach((project, i) => {
     row.rel = 'noopener';
   } else {
     row.type = 'button';
-    const stillIndex = shown.indexOf(project);
+    const firstSlide = previewSlides.findIndex((s) => s.project === project);
     row.addEventListener('click', () => {
-      if (stillIndex > -1) openLightbox(stillIndex);
+      if (firstSlide > -1) openLightbox(firstSlide);
     });
-    if (stillIndex === -1) row.classList.add('is-pending');
+    if (firstSlide === -1) row.classList.add('is-pending');
   }
 
   row.innerHTML = `
@@ -259,11 +273,11 @@ const lightboxCaption = document.getElementById('lightbox-caption');
 let currentIndex = 0;
 
 function renderLightbox() {
-  const project = shown[currentIndex];
-  lightboxMedia.innerHTML = project.video
-    ? `<video src="${project.video}" controls autoplay muted loop playsinline></video>`
-    : `<img src="${posterOf(project)}" alt="${project.title}">`;
-  lightboxCaption.textContent = `${project.title} — ${project.blurb}`;
+  const slide = previewSlides[currentIndex];
+  lightboxMedia.innerHTML = slide.video
+    ? `<video src="${slide.video}" controls autoplay muted loop playsinline></video>`
+    : `<img src="${slide.src}" alt="${slide.project.title}">`;
+  lightboxCaption.textContent = `${slide.project.title}: ${slide.project.blurb}`;
 }
 
 function openLightbox(index) {
@@ -282,7 +296,7 @@ function closeLightbox() {
 }
 
 function step(delta) {
-  currentIndex = (currentIndex + delta + shown.length) % shown.length;
+  currentIndex = (currentIndex + delta + previewSlides.length) % previewSlides.length;
   renderLightbox();
 }
 
