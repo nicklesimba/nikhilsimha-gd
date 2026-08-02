@@ -287,6 +287,7 @@ if (track && previewProjects.length) {
   if (previewProjects.length < 2) {
     prevBtn.hidden = true;
     nextBtn.hidden = true;
+    frame.classList.add('no-arrows');
   } else {
     prevBtn.addEventListener('click', () => loadProject(projectIndex - 1));
     nextBtn.addEventListener('click', () => loadProject(projectIndex + 1));

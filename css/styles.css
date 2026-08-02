@@ -19,6 +19,7 @@
      holding a fixed width and eating the picture on smaller screens. */
   --rail-w: clamp(172px, 22vw, 340px);
   --thumb-min: clamp(58px, 6.4vw, 126px);
+  --arrow-w: 38px;
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Full bleed: the layout always fills the viewport, gutters aside. */
   --max-width: 100%;
@@ -300,17 +301,24 @@ a, .project-row, .rail-thumb, .showcase-link {
 }
 
 /* Foreground: the whole frame, fitted and then eased in a touch so the blur
-   reads as a deliberate surround rather than a seam. */
+   reads as a deliberate surround rather than a seam. It is centred in the
+   clear span between the two arrows, not in the frame, so the controls and
+   the column never sit over the picture. */
 .slide-poster,
 .slide-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0 calc(var(--rail-w) + var(--arrow-w)) 0 var(--arrow-w);
+  width: auto;
+  height: auto;
   object-fit: contain;
   transform: scale(0.97);
   display: block;
   z-index: 1;
+}
+/* Nothing to steer clear of when there is only one project to show. */
+.showcase-frame.no-arrows .slide-poster,
+.showcase-frame.no-arrows .slide-video {
+  inset: 0 var(--rail-w) 0 0;
 }
 /* Footage fades up over its own thumbnail, and only while hovered. */
 .slide-video {
@@ -398,7 +406,7 @@ a, .project-row, .rail-thumb, .showcase-link {
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  width: 38px;
+  width: var(--arrow-w);
   height: 52px;
   display: flex;
   align-items: center;
