@@ -357,45 +357,10 @@ a, .project-row, .rail-thumb, .showcase-link {
   /* Scroll chains straight through to the page: the rail must never trap it. */
   overflow-y: auto;
   overscroll-behavior: auto;
-  /* Off white base with pastel lobes and a faceted cone layered over it. The
-     animation walks ten distinct geometric arrangements rather than sliding
-     one ramp along an axis, so the shapes recompose instead of scrolling. */
-  background-color: rgba(246, 244, 240, 0.86);
-  background-image:
-    radial-gradient(58% 46% at 50% 50%, rgba(216, 205, 247, 0.95), transparent 62%),
-    radial-gradient(52% 58% at 50% 50%, rgba(207, 227, 245, 0.92), transparent 64%),
-    radial-gradient(56% 42% at 50% 50%, rgba(246, 217, 232, 0.95), transparent 60%),
-    conic-gradient(from 20deg at 50% 50%,
-      rgba(216, 205, 247, 0.55), rgba(207, 227, 245, 0.5),
-      rgba(246, 217, 232, 0.55), rgba(216, 205, 247, 0.55));
-  background-repeat: no-repeat;
-  animation: rail-morph 72s ease-in-out infinite;
+  /* Flat semi transparent off white. No gradient, no motion. */
+  background: rgba(246, 244, 240, 0.86);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-}
-
-@keyframes rail-morph {
-  0%,
-  100% { background-position:  12% 8%,  88% 26%,  36% 88%,  70% 70%;
-         background-size: 170% 150%, 150% 170%, 180% 140%, 210% 210%; }
-  10%  { background-position:  78% 18%,  16% 62%,  62% 12%,  22% 40%;
-         background-size: 220% 120%, 130% 210%, 150% 160%, 260% 180%; }
-  20%  { background-position:  40% 92%,  70% 10%,   8% 44%,  90% 24%;
-         background-size: 130% 200%, 200% 130%, 240% 120%, 170% 250%; }
-  30%  { background-position:  90% 70%,  34% 20%,  52% 96%,  10% 84%;
-         background-size: 190% 140%, 160% 190%, 120% 220%, 230% 160%; }
-  40%  { background-position:  20% 36%,  92% 84%,  70% 30%,  46% 12%;
-         background-size: 140% 230%, 230% 140%, 200% 150%, 150% 240%; }
-  50%  { background-position:  64% 60%,   8% 14%,  30% 74%,  86% 52%;
-         background-size: 250% 130%, 140% 240%, 160% 200%, 200% 200%; }
-  60%  { background-position:   6% 78%,  56% 40%,  94% 60%,  30% 96%;
-         background-size: 160% 180%, 210% 150%, 130% 250%, 240% 140%; }
-  70%  { background-position:  84% 34%,  24% 88%,  46% 22%,  62% 66%;
-         background-size: 200% 160%, 170% 220%, 220% 130%, 180% 220%; }
-  80%  { background-position:  32% 14%,  76% 56%,  14% 90%,  96% 8%;
-         background-size: 230% 190%, 120% 180%, 190% 170%, 260% 150%; }
-  90%  { background-position:  70% 96%,  44% 30%,  80% 46%,  16% 60%;
-         background-size: 150% 210%, 250% 160%, 170% 190%, 190% 260%; }
 }
 .showcase-rail::-webkit-scrollbar { width: 5px; }
 .showcase-rail::-webkit-scrollbar-track { background: transparent; }
