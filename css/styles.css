@@ -284,8 +284,11 @@ button {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 16px;
-  background: rgba(51, 49, 57, 0.93);
+  padding: 20px;
+  background: rgba(46, 44, 52, 0.6);
+  /* A touch of blur keeps the white type legible over busy screenshots. */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   pointer-events: none;
 }
 
