@@ -229,7 +229,7 @@ button {
 .showcase {
   display: flex;
   flex-direction: column;
-  padding: clamp(22px, 2.6vw, 32px) var(--gutter) clamp(40px, 5vw, 64px) clamp(28px, 3.5vw, 48px);
+  padding: clamp(22px, 2.6vw, 32px) var(--gutter) clamp(40px, 5vw, 64px) 0;
   min-width: 0;
 }
 
@@ -241,6 +241,8 @@ button {
   min-height: min(58vh, 460px);
   overflow: hidden;
   border: 1px solid var(--rule-strong);
+  /* Left edge sits flush on the hero divider, so it needs no rule of its own. */
+  border-left: 0;
   background: var(--bg-sunk);
   transition: border-color 0.2s ease;
 }
@@ -349,6 +351,8 @@ button {
     padding: 32px var(--gutter);
     border-bottom: 1px solid var(--rule);
   }
+  /* No vertical divider to lean on once the columns stack. */
+  .showcase-frame { border-left: 1px solid var(--rule-strong); }
   .identity {
     border-right: 0;
     padding: 32px var(--gutter) 44px;
