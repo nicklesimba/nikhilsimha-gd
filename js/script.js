@@ -135,7 +135,6 @@ function keepSelectable(el) {
    Showcase — still fades into silent preview footage, click opens the project
    ============================================================================ */
 const track = document.getElementById('showcase-track');
-const railEl = document.getElementById('showcase-rail');
 const railThumbs = document.getElementById('showcase-rail-thumbs');
 const linkEl = document.getElementById('showcase-link');
 const linkLabelEl = document.getElementById('showcase-link-label');
@@ -276,11 +275,6 @@ if (track && previewProjects.length) {
     go(0);
   }
 
-  // Back off the column but still inside the frame: the clip picks up again.
-  railEl.addEventListener('mouseleave', () => {
-    if (paused && !reduceMotion) startVideo(slides[index]);
-  });
-
   const frame = track.closest('.showcase-frame');
 
   // Project arrows. Hidden outright when there is only one project to show.
@@ -294,20 +288,29 @@ if (track && previewProjects.length) {
     nextBtn.addEventListener('click', () => loadProject(projectIndex + 1));
   }
 
-  // Pointing at the frame holds the slide and rolls its clip; leaving resets it.
-  const hold = () => {
+  /* Anywhere over the picture rolls the clip. This listens on mouseover, not
+     mouseenter: mouseenter fires once on the way into the frame, so crossing
+     from an arrow or the column back onto the picture would never re-evaluate
+     and the footage would sit paused. mouseover fires on every transition
+     between descendants, so each of those moves is reconsidered. */
+  const overChrome = (target) =>
+    target.closest('.showcase-rail') || target.closest('.showcase-arrow');
+
+  frame.addEventListener('mouseover', (e) => {
     paused = true;
     clearTimeout(timer);
-    if (!reduceMotion) startVideo(slides[index]);
-  };
+    // The column browses stills and the arrows are controls; neither plays.
+    if (reduceMotion || overChrome(e.target)) return;
+    startVideo(slides[index]);
+  });
+
   const release = () => {
     paused = false;
     stopVideo(slides[index]);
     schedule(STILL_DWELL_MS);
   };
-  frame.addEventListener('mouseenter', hold);
   frame.addEventListener('mouseleave', release);
-  frame.addEventListener('focusin', hold);
+  frame.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
   frame.addEventListener('focusout', release);
 
   // Don't burn cycles on a showcase that is scrolled off screen.
