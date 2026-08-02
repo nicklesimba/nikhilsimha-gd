@@ -31,10 +31,15 @@ const projects = [
     blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
     link: 'https://youtu.be/6LGuYfwRs9Y',
     cta: 'Watch the demo',
-    thumb: 'assets/convoy/convoy-sc-1.png',
+    thumb: 'assets/convoy/convoy-combo.png',
     images: [
-      'assets/convoy/convoy-sc-1.png',
-      'assets/convoy/convoy-sc-2.png'
+      'assets/convoy/convoy-combo.png',
+      'assets/convoy/convoy-sc-5.png',
+      'assets/convoy/convoy-sc-6.png',
+      'assets/convoy/convoy-sc.png',
+      'assets/convoy/convoy-sc-2.png',
+      'assets/convoy/convoy-sc-3.png',
+      'assets/convoy/convoy-sc-4.png'
     ],
     // video: 'assets/video/convoy.mp4',
   },
