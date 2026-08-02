@@ -320,9 +320,7 @@ button {
   font-weight: 600;
   font-size: 0.92rem;
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;      /* a longer caption wraps rather than being clipped */
 }
 
 .showcase-cta {
