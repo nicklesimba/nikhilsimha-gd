@@ -123,6 +123,30 @@ a, .project-row, .rail-thumb, .showcase-link {
 /* The landing sits above the spill; everything below it is untouched. */
 main { position: relative; z-index: 1; }
 
+/* While the spill is up, the type over it goes white. Scoped to the nav and
+   the overview, the two regions the spill actually reaches. */
+.spilling .nav-logo,
+.spilling .nav-links a,
+.spilling .identity-name,
+.spilling .identity-role,
+.spilling .identity-tagline,
+.spilling .identity-tags li,
+.spilling .identity-links a,
+.spilling .btn-ghost {
+  color: #ffffff;
+}
+.spilling .nav-logo span,
+.spilling .identity-name span { color: #ffffff; }
+.spilling .identity-tags li { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.12); }
+.spilling .identity-links a { border-bottom-color: rgba(255, 255, 255, 0.55); }
+.spilling .btn-ghost { border-color: rgba(255, 255, 255, 0.7); }
+
+.nav-logo, .nav-logo span, .nav-links a,
+.identity-name, .identity-name span, .identity-role,
+.identity-tagline, .identity-tags li, .identity-links a, .btn-ghost {
+  transition: color 0.45s ease, border-color 0.45s ease, background 0.45s ease;
+}
+
 /* ---------------------------------------------------------- Nav ---------- */
 .nav {
   position: sticky;
@@ -135,11 +159,18 @@ main { position: relative; z-index: 1; }
   padding: 12px var(--gutter);
   /* Body line-height is set for prose; the bar should hug its own text. */
   line-height: 1.2;
-  /* Translucent enough for the preview's colour to bloom through it. */
-  background: rgba(244, 242, 238, 0.74);
-  backdrop-filter: blur(10px) saturate(160%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
-  border-bottom: 1px solid var(--rule);
+  /* No ground of its own over the landing, so it takes the spill exactly as
+     the overview beneath it does and the two always read as one colour. */
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+/* Past the landing there is no spill to sit in, so it takes the page colour. */
+.nav.scrolled {
+  background: rgba(244, 242, 238, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom-color: var(--rule);
 }
 
 .nav-logo {
@@ -343,6 +374,11 @@ main { position: relative; z-index: 1; }
 }
 .slide.playing .slide-backdrop-video { opacity: 1; }
 
+/* Hard rule: once footage is rolling, no still is left showing anywhere in
+   the window, foreground or backdrop. */
+.slide-backdrop { transition: opacity 0.45s ease; }
+.slide.playing .slide-backdrop { opacity: 0; }
+
 /* Foreground: the whole frame, fitted and then eased in a touch so the blur
    reads as a deliberate surround rather than a seam. Centred in the clear
    span between the two arrows, not in the frame, so the controls and the
@@ -365,6 +401,8 @@ main { position: relative; z-index: 1; }
   display: block;
   z-index: 1;
 }
+.slide-poster { transition: opacity 0.45s ease; }
+.slide.playing .slide-poster { opacity: 0; }
 /* Nothing to steer clear of when there is only one project to show. */
 .showcase-frame.no-arrows .slide-poster,
 .showcase-frame.no-arrows .slide-video {
@@ -442,8 +480,16 @@ main { position: relative; z-index: 1; }
   overscroll-behavior: auto;
   /* Flat semi transparent off white. No gradient, no motion. */
   background: rgba(246, 244, 240, 0.86);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px) saturate(140%);
+  -webkit-backdrop-filter: blur(5px) saturate(140%);
+  transition: background 0.5s ease, backdrop-filter 0.5s ease;
+}
+/* While footage rolls, the column thins and saturates so the clip's colour
+   blooms up through it, matching the spill across the rest of the landing. */
+.showcase-frame:has(.slide.playing) .showcase-rail {
+  background: rgba(246, 244, 240, 0.6);
+  backdrop-filter: blur(20px) saturate(240%) brightness(1.06);
+  -webkit-backdrop-filter: blur(20px) saturate(240%) brightness(1.06);
 }
 .showcase-rail::-webkit-scrollbar { width: 5px; }
 .showcase-rail::-webkit-scrollbar-track { background: transparent; }

@@ -284,10 +284,12 @@ if (track && previewProjects.length) {
       v.addEventListener('playing', () => {
         slide.classList.add('playing');
         if (ambient) ambient.classList.add('on');
+        document.documentElement.classList.add('spilling');
       });
       v.addEventListener('pause', () => {
         slide.classList.remove('playing');
         if (ambient) ambient.classList.remove('on');
+        document.documentElement.classList.remove('spilling');
       });
     });
 
@@ -486,10 +488,12 @@ function syncNavHeight() {
   document.documentElement.style.setProperty('--nav-h', `${nav.offsetHeight}px`);
   // The spill reaches exactly to the foot of the hero and no further, so the
   // Projects bar never picks up colour from whatever is playing above it.
+  /* Measured off the box, not offsetTop: main is positioned, so it is the
+     hero's offset parent and offsetTop reads 0, which left the spill short
+     by exactly the height of the nav. */
   if (hero) {
-    document.documentElement.style.setProperty(
-      '--ambient-h', `${hero.offsetTop + hero.offsetHeight}px`
-    );
+    const bottom = hero.getBoundingClientRect().bottom + window.scrollY;
+    document.documentElement.style.setProperty('--ambient-h', `${Math.round(bottom)}px`);
   }
 }
 syncNavHeight();
