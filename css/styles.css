@@ -16,8 +16,9 @@
   --blue-soft: #d3e4f5;
 
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --max-width: 1280px;
-  --gutter: clamp(20px, 4vw, 56px);
+  /* Full bleed: the layout always fills the viewport, gutters aside. */
+  --max-width: 100%;
+  --gutter: clamp(20px, 3vw, 56px);
 }
 
 /* Nothing on this site is rounded. */
@@ -470,6 +471,7 @@ button {
   font-size: 0.8rem;
   line-height: 1.6;
   color: var(--text-dim);
+  max-width: 88ch;      /* full bleed shouldn't mean unreadably long lines */
 }
 
 .project-cta {
@@ -621,13 +623,9 @@ button {
 }
 
 /* --------------------------------------------------------- Ultrawide ------ */
-/* Wide desktops get a wider column, and 21:9 gets two projects per row. */
-@media (min-width: 1600px) {
-  :root { --max-width: 1460px; }
-}
-
+/* 21:9 has room for two projects per row. */
 @media (min-width: 2000px) {
-  :root { --max-width: 1900px; --gutter: clamp(56px, 4vw, 88px); }
+  :root { --gutter: clamp(56px, 4vw, 88px); }
 
   .project-list {
     display: grid;
