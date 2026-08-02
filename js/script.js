@@ -130,6 +130,8 @@ function keepSelectable(el) {
 /* ============================================================================
    Showcase — still fades into silent preview footage, click opens the project
    ============================================================================ */
+const ambient = document.getElementById('ambient');
+const ambientVideo = document.getElementById('ambient-video');
 const track = document.getElementById('showcase-track');
 const railThumbs = document.getElementById('showcase-rail-thumbs');
 const linkEl = document.getElementById('showcase-link');
@@ -161,7 +163,16 @@ if (track && previewProjects.length) {
      until someone points at them, which also keeps the clips off mobile. */
   /* Both the picture and its blurred backdrop are clips, so they start and
      stop together and the backdrop is nudged onto the picture's timestamp. */
+  const play = (v) => {
+    if (!v) return;
+    const played = v.play();
+    // A rejected play (autoplay policy, or a pause landing first) just leaves
+    // the still up, which is the correct fallback either way.
+    if (played && played.catch) played.catch(() => {});
+  };
+
   function stopVideo(slide) {
+    if (ambientVideo) ambientVideo.pause();
     if (!slide) return;
     slide.querySelectorAll('video').forEach((v) => v.pause());
   }
@@ -171,13 +182,17 @@ if (track && previewProjects.length) {
     const fg = slide.querySelector('.slide-video');
     const bg = slide.querySelector('.slide-backdrop-video');
     if (fg && bg && Number.isFinite(fg.currentTime)) bg.currentTime = fg.currentTime;
+
+    // The spill runs the same clip, matched to the picture's timestamp.
+    if (fg && ambientVideo) {
+      const src = fg.getAttribute('src');
+      if (ambientVideo.getAttribute('src') !== src) ambientVideo.src = src;
+      if (Number.isFinite(fg.currentTime)) ambientVideo.currentTime = fg.currentTime;
+      play(ambientVideo);
+    }
+
     // No seek to zero: coming back to a clip resumes where it left off.
-    slide.querySelectorAll('video').forEach((v) => {
-      const played = v.play();
-      // A rejected play (autoplay policy, or a pause landing first) just
-      // leaves the still up, which is the correct fallback either way.
-      if (played && played.catch) played.catch(() => {});
-    });
+    slide.querySelectorAll('video').forEach(play);
   }
 
   function go(next) {
@@ -266,8 +281,14 @@ if (track && previewProjects.length) {
     slides.forEach((slide) => {
       const v = slide.querySelector('.slide-video');
       if (!v) return;
-      v.addEventListener('playing', () => slide.classList.add('playing'));
-      v.addEventListener('pause', () => slide.classList.remove('playing'));
+      v.addEventListener('playing', () => {
+        slide.classList.add('playing');
+        if (ambient) ambient.classList.add('on');
+      });
+      v.addEventListener('pause', () => {
+        slide.classList.remove('playing');
+        if (ambient) ambient.classList.remove('on');
+      });
     });
 
     // The rail browses stills: hovering a thumbnail shows that screenshot and
@@ -459,11 +480,22 @@ window.addEventListener('scroll', () => {
 
 /* The landing sizes itself against the viewport minus the nav, so measure the
    nav rather than hard-coding a height that font loading could change. */
-const syncNavHeight = () =>
+const hero = document.getElementById('top');
+
+function syncNavHeight() {
   document.documentElement.style.setProperty('--nav-h', `${nav.offsetHeight}px`);
+  // The spill reaches exactly to the foot of the hero and no further, so the
+  // Projects bar never picks up colour from whatever is playing above it.
+  if (hero) {
+    document.documentElement.style.setProperty(
+      '--ambient-h', `${hero.offsetTop + hero.offsetHeight}px`
+    );
+  }
+}
 syncNavHeight();
 window.addEventListener('resize', syncNavHeight);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncNavHeight);
+if (hero && 'ResizeObserver' in window) new ResizeObserver(syncNavHeight).observe(hero);
 
 const navLinks = document.querySelectorAll('[data-nav]');
 const sectionObserver = new IntersectionObserver((entries) => {

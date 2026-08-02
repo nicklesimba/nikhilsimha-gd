@@ -27,6 +27,12 @@
 <body>
   <script>document.documentElement.classList.remove('no-js');</script>
 
+  <!-- Light spilling out of the preview, behind the nav and the overview.
+       Its height stops at the foot of the hero, so Projects stays clean. -->
+  <div class="ambient" id="ambient" aria-hidden="true">
+    <video class="ambient-video" id="ambient-video" muted loop playsinline preload="none"></video>
+  </div>
+
   <header class="nav" id="nav">
     <a href="#top" class="nav-logo">NIKHIL <span>SIMHA</span></a>
     <nav class="nav-links">

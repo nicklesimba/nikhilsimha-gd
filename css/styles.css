@@ -89,6 +89,40 @@ a, .project-row, .rail-thumb, .showcase-link {
   outline-offset: 2px;
 }
 
+/* ------------------------------------------------------- Ambient --------- */
+/* Colour spilling out of the preview and blooming under the nav and the
+   overview. Height is measured to the foot of the hero, so the Projects bar
+   and everything below it stay clean no matter what is playing. */
+.ambient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ambient-h, 0px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.ambient.on { opacity: 1; }
+
+.ambient-video {
+  position: absolute;
+  /* Overscanned hard: at this blur radius the edges would otherwise fall off
+     into nothing well inside the frame. */
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  object-fit: cover;
+  filter: blur(90px) saturate(2.4) brightness(1.2);
+  opacity: 0.5;
+}
+
+/* The landing sits above the spill; everything below it is untouched. */
+main { position: relative; z-index: 1; }
+
 /* ---------------------------------------------------------- Nav ---------- */
 .nav {
   position: sticky;
@@ -99,9 +133,10 @@ a, .project-row, .rail-thumb, .showcase-link {
   align-items: center;
   gap: 20px;
   padding: 14px var(--gutter);
-  background: rgba(244, 242, 238, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* Translucent enough for the preview's colour to bloom through it. */
+  background: rgba(244, 242, 238, 0.74);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -140,7 +175,6 @@ a, .project-row, .rail-thumb, .showcase-link {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0;
-  border-bottom: 1px solid var(--rule);
 }
 
 /* The vertical rule that splits left side from right side. */
@@ -532,7 +566,8 @@ a, .project-row, .rail-thumb, .showcase-link {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  margin-top: clamp(44px, 6vw, 76px);
+  /* Flush against the hero: the bar's own top rule closes off the landing. */
+  margin-top: 0;
   padding: 18px var(--gutter);
   border-top: 1px solid var(--text);
   border-bottom: 1px solid var(--text);
