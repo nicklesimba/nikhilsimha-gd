@@ -15,7 +15,9 @@
   --blue: #3f7fbf;
   --blue-soft: #d3e4f5;
 
-  --rail-w: clamp(232px, 24vw, 340px);
+  /* Mostly proportional, so the column narrows with the viewport instead of
+     holding a fixed width and eating the picture on smaller screens. */
+  --rail-w: clamp(172px, 22vw, 340px);
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Full bleed: the layout always fills the viewport, gutters aside. */
   --max-width: 100%;
@@ -396,12 +398,16 @@ a, .project-row, .rail-thumb, .showcase-link {
 .showcase-prev { left: 0; border-left: 0; }
 .showcase-next { right: var(--rail-w); border-right: 0; }
 
-/* Two up, so a handful of stills fit without the column needing to scroll. */
+/* Two up, so a handful of stills fit without the column needing to scroll.
+   Once the column is narrow the pair would be postage stamps, so drop to one. */
 .rail-thumbs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   align-content: start;
+}
+@media (max-width: 1120px) {
+  .rail-thumbs { grid-template-columns: 1fr; }
 }
 
 .rail-thumb {
