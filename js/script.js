@@ -31,6 +31,7 @@ const projects = [
     blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
     // link: 'https://www.youtube.com/watch?v=YOUR_WIP_DEMO',
     cta: 'Watch the demo',
+    comingSoon: true,        // holds a preview slot until there are captures
     // thumb:  'assets/poster/convoy.png',
     // images: ['assets/poster/convoy.png'],
     // video:  'assets/video/convoy.mp4',
@@ -51,16 +52,6 @@ const projects = [
       'assets/kib/gato-boss.png'
     ],
     video: 'assets/video/kib.mp4',
-  },
-  {
-    tag: 'GMTK Jam 2026',
-    title: 'Jam Entry',
-    blurb: 'Space shooter built in GameMaker over the jam weekend. Ship-and-rider control scheme with a settable lives system.',
-    // link: 'https://nicklesimba.itch.io/YOUR_JAM_GAME',
-    cta: 'Play the jam build',
-    // thumb:  'assets/poster/gmtk.png',
-    // images: ['assets/poster/gmtk.png'],
-    // video:  'assets/video/gmtk.mp4',
   },
   {
     tag: 'Unreal',
@@ -84,14 +75,19 @@ const projects = [
 /* The list row takes the static thumb; the preview takes every still. */
 const thumbOf = (p) => p.thumb || (p.images && p.images[0]) || null;
 
-const previewSlides = projects.flatMap((project) =>
-  (project.images || []).map((src) => ({
+/* The preview is paged by project. A project appears once it has stills, or
+   once it is flagged comingSoon so it can hold a slot before it has any. */
+const previewProjects = projects.filter(
+  (p) => (p.images && p.images.length) || p.comingSoon
+);
+
+const slidesFor = (project) =>
+  (project.images && project.images.length ? project.images : [null]).map((src) => ({
     src,
     project,
     // Every still of a project rolls that project's clip on hover.
     video: project.video || null
-  }))
-);
+  }));
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -109,47 +105,15 @@ const blurbEl = document.getElementById('showcase-blurb');
 const ctaEl = document.getElementById('showcase-cta');
 
 const STILL_DWELL_MS = 5000;
-const MIN_VIDEO_DWELL_MS = 6000;
 
-if (track && previewSlides.length) {
-  track.innerHTML = previewSlides.map((s, i) => `
-    <div class="slide${i === 0 ? ' active' : ''}">
-      <img class="slide-poster" src="${s.src}" alt="${s.project.title}"
-           ${i === 0 ? '' : 'loading="lazy"'}>
-      ${s.video && !reduceMotion
-        ? `<video class="slide-video" src="${s.video}" muted loop playsinline preload="none"></video>`
-        : ''}
-    </div>
-  `).join('');
-
-  /* Thumbnail rail. Hovering one shows it; clicking one goes to the project. */
-  railThumbs.innerHTML = previewSlides.map((s, i) => {
-    const tag = s.project.link ? 'a' : 'button';
-    const attrs = s.project.link
-      ? `href="${s.project.link}" target="_blank" rel="noopener"`
-      : 'type="button"';
-    return `
-      <${tag} class="rail-thumb${i === 0 ? ' active' : ''}" ${attrs} role="tab"
-              aria-label="${s.project.title}" aria-selected="${i === 0}">
-        <img src="${s.src}" alt="" loading="lazy">
-      </${tag}>`;
-  }).join('');
-
-  const slides = [...track.querySelectorAll('.slide')];
-  const rail = [...railThumbs.querySelectorAll('.rail-thumb')];
+if (track && previewProjects.length) {
+  let projectIndex = 0;
+  let previewSlides = [];
+  let slides = [];
+  let rail = [];
   let index = 0;
   let timer = null;
   let paused = false;
-
-  /* Drive the crossfade off the media's own events, bound once. play() is a
-     promise, so a listener added per call could fire after a later pause and
-     bring the clip back over a still the viewer had deliberately selected. */
-  slides.forEach((slide) => {
-    const v = slide.querySelector('.slide-video');
-    if (!v) return;
-    v.addEventListener('playing', () => slide.classList.add('playing'));
-    v.addEventListener('pause', () => slide.classList.remove('playing'));
-  });
 
   function schedule(ms) {
     clearTimeout(timer);
@@ -177,15 +141,19 @@ if (track && previewSlides.length) {
   function go(next) {
     stopVideo(slides[index]);
     slides[index].classList.remove('active');
-    rail[index].classList.remove('active');
-    rail[index].setAttribute('aria-selected', 'false');
+    if (rail[index]) {
+      rail[index].classList.remove('active');
+      rail[index].setAttribute('aria-selected', 'false');
+    }
 
     index = (next + slides.length) % slides.length;
     const project = previewSlides[index].project;
 
     slides[index].classList.add('active');
-    rail[index].classList.add('active');
-    rail[index].setAttribute('aria-selected', 'true');
+    if (rail[index]) {
+      rail[index].classList.add('active');
+      rail[index].setAttribute('aria-selected', 'true');
+    }
 
     tagEl.textContent = project.tag;
     titleEl.textContent = project.previewTitle || project.title;
@@ -209,16 +177,63 @@ if (track && previewSlides.length) {
     schedule(STILL_DWELL_MS);
   }
 
-  // The rail browses stills: hovering a thumbnail shows that screenshot and
-  // holds the footage. Clicks are left alone, these are links to the project.
-  rail.forEach((thumb, i) => {
-    const show = () => {
-      if (i !== index) go(i);
-      stopVideo(slides[index]);
-    };
-    thumb.addEventListener('mouseenter', show);
-    thumb.addEventListener('focus', show);
-  });
+  /* Paging to a project rebuilds the frame and the rail for that project. */
+  function loadProject(nextProject) {
+    clearTimeout(timer);
+    projectIndex = (nextProject + previewProjects.length) % previewProjects.length;
+    const project = previewProjects[projectIndex];
+    previewSlides = slidesFor(project);
+
+    track.innerHTML = previewSlides.map((s, i) => `
+      <div class="slide${i === 0 ? ' active' : ''}">
+        ${s.src ? `<img class="slide-poster" src="${s.src}" alt="${s.project.title}">` : ''}
+        ${s.video && !reduceMotion
+          ? `<video class="slide-video" src="${s.video}" muted loop playsinline preload="none"></video>`
+          : ''}
+      </div>
+    `).join('');
+
+    railThumbs.innerHTML = previewSlides
+      .filter((s) => s.src)
+      .map((s, i) => {
+        const tag = project.link ? 'a' : 'button';
+        const attrs = project.link
+          ? `href="${project.link}" target="_blank" rel="noopener"`
+          : 'type="button"';
+        return `
+          <${tag} class="rail-thumb${i === 0 ? ' active' : ''}" ${attrs} role="tab"
+                  aria-label="${project.title}" aria-selected="${i === 0}">
+            <img src="${s.src}" alt="" loading="lazy">
+          </${tag}>`;
+      }).join('');
+
+    slides = [...track.querySelectorAll('.slide')];
+    rail = [...railThumbs.querySelectorAll('.rail-thumb')];
+    index = 0;
+
+    /* Drive the crossfade off the media's own events, bound once per element.
+       play() is a promise, so a listener added per call could fire after a
+       later pause and bring the clip back over a deliberately chosen still. */
+    slides.forEach((slide) => {
+      const v = slide.querySelector('.slide-video');
+      if (!v) return;
+      v.addEventListener('playing', () => slide.classList.add('playing'));
+      v.addEventListener('pause', () => slide.classList.remove('playing'));
+    });
+
+    // The rail browses stills: hovering a thumbnail shows that screenshot and
+    // holds the footage. Clicks are left alone, these are links to the project.
+    rail.forEach((thumb, i) => {
+      const show = () => {
+        if (i !== index) go(i);
+        stopVideo(slides[index]);
+      };
+      thumb.addEventListener('mouseenter', show);
+      thumb.addEventListener('focus', show);
+    });
+
+    go(0);
+  }
 
   // Back off the column but still inside the frame: the clip picks up again.
   railEl.addEventListener('mouseleave', () => {
@@ -226,6 +241,17 @@ if (track && previewSlides.length) {
   });
 
   const frame = track.closest('.showcase-frame');
+
+  // Project arrows. Hidden outright when there is only one project to show.
+  const prevBtn = document.getElementById('showcase-prev');
+  const nextBtn = document.getElementById('showcase-next');
+  if (previewProjects.length < 2) {
+    prevBtn.hidden = true;
+    nextBtn.hidden = true;
+  } else {
+    prevBtn.addEventListener('click', () => loadProject(projectIndex - 1));
+    nextBtn.addEventListener('click', () => loadProject(projectIndex + 1));
+  }
 
   // Pointing at the frame holds the slide and rolls its clip; leaving resets it.
   const hold = () => {
@@ -249,7 +275,7 @@ if (track && previewSlides.length) {
     else { clearTimeout(timer); stopVideo(slides[index]); }
   }, { threshold: 0.25 }).observe(frame);
 
-  go(0);
+  loadProject(0);
 } else if (track) {
   track.closest('.showcase').style.display = 'none';
 }
@@ -260,8 +286,13 @@ if (track && previewSlides.length) {
    ============================================================================ */
 const list = document.getElementById('project-list');
 
-document.getElementById('project-count').textContent =
-  `${String(projects.length).padStart(2, '0')} entries`;
+/* Stills a project can show full size when it has nowhere external to link. */
+function shotsFor(project) {
+  const srcs = project.images && project.images.length
+    ? project.images
+    : [thumbOf(project)];
+  return srcs.filter(Boolean).map((src) => ({ src, project }));
+}
 
 function thumbHTML(project) {
   const still = thumbOf(project);
@@ -281,11 +312,11 @@ projects.forEach((project, i) => {
     row.rel = 'noopener';
   } else {
     row.type = 'button';
-    const firstSlide = previewSlides.findIndex((s) => s.project === project);
+    const hasShots = shotsFor(project).length > 0;
     row.addEventListener('click', () => {
-      if (firstSlide > -1) openLightbox(firstSlide);
+      if (hasShots) openLightbox(project);
     });
-    if (firstSlide === -1) row.classList.add('is-pending');
+    if (!hasShots) row.classList.add('is-pending');
   }
 
   row.innerHTML = `
@@ -309,18 +340,21 @@ projects.forEach((project, i) => {
 const lightbox = document.getElementById('lightbox');
 const lightboxMedia = document.getElementById('lightbox-media');
 const lightboxCaption = document.getElementById('lightbox-caption');
+let lightboxShots = [];
 let currentIndex = 0;
 
 function renderLightbox() {
-  const slide = previewSlides[currentIndex];
-  lightboxMedia.innerHTML = slide.video
-    ? `<video src="${slide.video}" controls autoplay muted loop playsinline></video>`
-    : `<img src="${slide.src}" alt="${slide.project.title}">`;
-  lightboxCaption.textContent = `${slide.project.title}: ${slide.project.blurb}`;
+  const shot = lightboxShots[currentIndex];
+  lightboxMedia.innerHTML = shot.project.video
+    ? `<video src="${shot.project.video}" controls autoplay muted loop playsinline></video>`
+    : `<img src="${shot.src}" alt="${shot.project.title}">`;
+  lightboxCaption.textContent = `${shot.project.title}: ${shot.project.blurb}`;
 }
 
-function openLightbox(index) {
-  currentIndex = index;
+function openLightbox(project) {
+  lightboxShots = shotsFor(project);
+  if (!lightboxShots.length) return;
+  currentIndex = 0;
   renderLightbox();
   lightbox.classList.add('open');
   lightbox.setAttribute('aria-hidden', 'false');
@@ -335,7 +369,8 @@ function closeLightbox() {
 }
 
 function step(delta) {
-  currentIndex = (currentIndex + delta + previewSlides.length) % previewSlides.length;
+  if (!lightboxShots.length) return;
+  currentIndex = (currentIndex + delta + lightboxShots.length) % lightboxShots.length;
   renderLightbox();
 }
 
