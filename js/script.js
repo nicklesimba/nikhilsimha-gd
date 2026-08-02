@@ -4,10 +4,7 @@
    Fields
    ------
    tag      Small label above the title (studio, jam, platform).
-   title    Project name. Used in the list below.
-   previewTitle
-            Optional longer name for the preview caption bar only, when the
-            slide wants more context than the list row does.
+   title    Project name.
    blurb    One or two sentences. What you built, not what the game is about.
    link     Where a click goes: itch page, YouTube WIP demo, GitHub. Omit or
             leave null and the card simply is not clickable.
@@ -46,10 +43,9 @@ const projects = [
   {
     tag: 'itch.io',
     title: 'K.I.B.',
-    blurb: 'Kitties in Black, a finished and playable release. Enemy patterns, boss encounter, and full game loop.',
+    blurb: 'Kitties in Black, a playable prototype made for a game jam over the course of four days.',
     link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
     cta: 'Play on itch.io',
-    previewTitle: 'K.I.B. - game jam prototype made in 4 days',
     thumb: 'assets/kib/kib-thumb.png',
     images: [
       'assets/kib/kib-sc-1.png',
@@ -196,7 +192,7 @@ if (track && previewProjects.length) {
     }
 
     tagEl.textContent = project.tag;
-    titleEl.textContent = project.previewTitle || project.title;
+    titleEl.textContent = project.title;
     blurbEl.textContent = project.blurb;
     ctaEl.textContent = project.link ? (project.cta || 'View project') : 'Coming soon';
 
