@@ -344,8 +344,9 @@ button {
   flex-direction: column;
   gap: 8px;
   padding: 10px;
+  /* Scroll chains straight through to the page: the rail must never trap it. */
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   background: rgba(46, 44, 52, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
