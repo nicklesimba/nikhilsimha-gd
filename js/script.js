@@ -223,7 +223,10 @@ const ctaEl = document.getElementById('showcase-cta');
 if (titleEl) keepSelectable(titleEl);
 if (ctaEl) keepSelectable(ctaEl);
 
-const STILL_DWELL_MS = 5000;
+/* Stills never advance on their own; the whole project does. Left alone, a
+   project holds for this long and then crossfades to the next one. */
+const PROJECT_DWELL_MS = 6500;
+const SWAP_MS = 420;
 
 if (track && previewProjects.length) {
   let projectIndex = 0;
@@ -234,10 +237,12 @@ if (track && previewProjects.length) {
   let timer = null;
   let paused = false;
 
-  function schedule(ms) {
+  function schedule() {
     clearTimeout(timer);
-    if (slides.length < 2) return;
-    timer = setTimeout(() => { if (!paused) go(index + 1); }, ms);
+    if (previewProjects.length < 2) return;
+    timer = setTimeout(() => {
+      if (!paused) loadProject(projectIndex + 1);
+    }, PROJECT_DWELL_MS);
   }
 
   /* Footage is a hover reward, not an autoplay. Thumbnails hold the frame
@@ -313,13 +318,22 @@ if (track && previewProjects.length) {
       titleEl.removeAttribute('href');
       ctaEl.removeAttribute('href');
     }
-
-    schedule(STILL_DWELL_MS);
   }
 
-  /* Paging to a project rebuilds the frame and the rail for that project. */
-  function loadProject(nextProject) {
+  /* Paging to a project rebuilds the frame and the rail for that project.
+     Everything fades out, swaps, and fades back in, so a project is replaced
+     rather than cut to. */
+  function loadProject(nextProject, instant = false) {
     clearTimeout(timer);
+    if (!instant) {
+      frame.classList.add('swapping');
+      setTimeout(() => { build(nextProject); frame.classList.remove('swapping'); }, SWAP_MS);
+      return;
+    }
+    build(nextProject);
+  }
+
+  function build(nextProject) {
     projectIndex = (nextProject + previewProjects.length) % previewProjects.length;
     const project = previewProjects[projectIndex];
     previewSlides = slidesFor(project);
@@ -388,6 +402,7 @@ if (track && previewProjects.length) {
     });
 
     go(0);
+    schedule();
   }
 
   const frame = track.closest('.showcase-frame');
@@ -428,7 +443,7 @@ if (track && previewProjects.length) {
   const release = () => {
     paused = false;
     stopVideo(slides[index]);
-    schedule(STILL_DWELL_MS);
+    schedule();
   };
   frame.addEventListener('mouseleave', release);
   frame.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
@@ -436,11 +451,11 @@ if (track && previewProjects.length) {
 
   // Don't burn cycles on a showcase that is scrolled off screen.
   new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) schedule(STILL_DWELL_MS);
+    if (entry.isIntersecting) schedule();
     else { clearTimeout(timer); stopVideo(slides[index]); }
   }, { threshold: 0.25 }).observe(frame);
 
-  loadProject(0);
+  loadProject(0, true);
 } else if (track) {
   track.closest('.showcase').style.display = 'none';
 }

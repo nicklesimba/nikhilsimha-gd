@@ -326,6 +326,15 @@ main { position: relative; z-index: 1; }
 /* The picture spans the whole window. The rail and caption float over it. */
 .showcase-track { position: absolute; inset: 0; }
 
+/* A project leaves before the next one arrives: picture, caption and
+   thumbnails all fade out together, swap, and fade back in. */
+.showcase-track,
+.showcase-header,
+.rail-thumbs { transition: opacity 0.4s ease; }
+.showcase-frame.swapping .showcase-track,
+.showcase-frame.swapping .showcase-header,
+.showcase-frame.swapping .rail-thumbs { opacity: 0; }
+
 .slide {
   position: absolute;
   inset: 0;
