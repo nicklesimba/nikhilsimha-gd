@@ -406,14 +406,19 @@ if (track && previewProjects.length) {
      from an arrow or the column back onto the picture would never re-evaluate
      and the footage would sit paused. mouseover fires on every transition
      between descendants, so each of those moves is reconsidered. */
-  const overChrome = (target) =>
-    target.closest('.showcase-rail') || target.closest('.showcase-arrow');
-
   frame.addEventListener('mouseover', (e) => {
     paused = true;
     clearTimeout(timer);
-    // The column browses stills and the arrows are controls; neither plays.
-    if (reduceMotion || overChrome(e.target)) return;
+
+    // The column is not the picture: anywhere in it holds the footage, gaps
+    // and padding included, not just the thumbnails themselves.
+    if (e.target.closest('.showcase-rail')) {
+      stopVideo(slides[index]);
+      return;
+    }
+    // Arrows sit over the picture, so they neither start nor stop it.
+    if (reduceMotion || e.target.closest('.showcase-arrow')) return;
+
     startVideo(slides[index]);
   });
 
