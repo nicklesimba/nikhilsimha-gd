@@ -341,8 +341,12 @@ main { position: relative; z-index: 1; }
 .slide-backdrop,
 .slide-backdrop-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  /* Extended left by the width of the column and anchored there, which puts
+     the midpoint of this box on the midpoint of the foreground while still
+     covering the whole window. The two stay registered at any width. */
+  left: calc(var(--rail-w) * -1);
+  width: calc(100% + var(--rail-w));
   height: 100%;
   object-fit: cover;
   display: block;
