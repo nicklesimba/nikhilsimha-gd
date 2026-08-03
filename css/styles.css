@@ -3,6 +3,9 @@
   --bg-sunk: #eae7e1;
   --text: #121114;          /* near black */
   --text-dim: #6b6873;      /* grey subtext */
+  /* Secondary type over the landing. The script retunes this while the spill
+     is up, since what that type contrasts against then depends on the clip. */
+  --text-dim-live: #6b6873;
   --text-faint: #9a96a3;
 
   --rule: #d6d2ca;          /* hairline that does the dividing */
@@ -117,7 +120,7 @@ a, .project-row, .rail-thumb, .showcase-link {
   height: 150%;
   object-fit: cover;
   filter: blur(90px) saturate(2.4) brightness(1.2);
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 /* The landing sits above the spill; everything below it is untouched. */
@@ -136,18 +139,18 @@ main { position: relative; z-index: 1; }
   padding: 12px var(--gutter);
   /* Body line-height is set for prose; the bar should hug its own text. */
   line-height: 1.2;
-  /* No ground of its own over the landing, so it takes the spill exactly as
-     the overview beneath it does and the two always read as one colour. */
+  /* No ground of its own over the landing, so it takes the page colour and the
+     spill exactly as the overview beneath it does and the two read as one. */
   background: transparent;
-  border-bottom: 1px solid transparent;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  /* Always ruled off from whatever sits under it. */
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.3s ease;
 }
 /* Past the landing there is no spill to sit in, so it takes the page colour. */
 .nav.scrolled {
   background: rgba(244, 242, 238, 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom-color: var(--rule);
 }
 
 .nav-logo {
@@ -163,7 +166,7 @@ main { position: relative; z-index: 1; }
   font-size: 0.88rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--text-dim-live);
   padding-bottom: 2px;
   border-bottom: 1px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
@@ -229,7 +232,7 @@ main { position: relative; z-index: 1; }
 }
 
 .identity-tagline {
-  color: var(--text-dim);
+  color: var(--text-dim-live);
   font-size: 0.78rem;
   line-height: 1.75;
   letter-spacing: -0.01em;
@@ -455,8 +458,9 @@ main { position: relative; z-index: 1; }
   /* Scroll chains straight through to the page: the rail must never trap it. */
   overflow-y: auto;
   overscroll-behavior: auto;
-  /* Flat semi transparent off white. No gradient, no motion. */
-  background: rgba(246, 244, 240, 0.86);
+  /* The page's own off white, so the column, the nav and the overview all read
+     as one ground when nothing is playing. No gradient, no motion. */
+  background: var(--bg);
   backdrop-filter: blur(5px) saturate(140%);
   -webkit-backdrop-filter: blur(5px) saturate(140%);
   transition: background 0.5s ease, backdrop-filter 0.5s ease;
@@ -464,7 +468,7 @@ main { position: relative; z-index: 1; }
 /* While footage rolls, the column thins and saturates so the clip's colour
    blooms up through it, matching the spill across the rest of the landing. */
 .showcase-frame:has(.slide.playing) .showcase-rail {
-  background: rgba(246, 244, 240, 0.6);
+  background: rgba(244, 242, 238, 0.6);
   backdrop-filter: blur(20px) saturate(240%) brightness(1.06);
   -webkit-backdrop-filter: blur(20px) saturate(240%) brightness(1.06);
 }

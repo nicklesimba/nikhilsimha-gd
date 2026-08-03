@@ -113,6 +113,75 @@ window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ============================================================================
+   Secondary type over the spill
+
+   While a clip is rolling it sits between the page and the overview, so what
+   the grey subtext contrasts against is whatever is on screen. Sample the
+   clip, work out the composite luminance, and pick whichever colour actually
+   wins on contrast.
+
+   Worth knowing which way this lands: the page shows through underneath, so
+   at the current 50% spill even a black frame only reaches L=0.445, where
+   white scores 2.12:1 against the grey's 2.57:1 and a near-black 6.89:1. So
+   it darkens rather than whitens. White only starts winning below L=0.400,
+   which needs the spill past roughly 70%. Raise it and this flips on its own.
+   ============================================================================ */
+const PAGE_LUM = 0.889;                                  // luminance of --bg
+const DIM_CHOICES = ['#6b6873', '#2a2733', '#ffffff'];   // default, darker, white
+
+const toLinear = (c) => {
+  c /= 255;
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+};
+const lumOf = (r, g, b) =>
+  0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+const hexLum = (hex) => lumOf(
+  parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)
+);
+const DIM_LUMS = DIM_CHOICES.map(hexLum);
+
+const sampler = document.createElement('canvas');
+sampler.width = sampler.height = 8;
+const samplerCtx = sampler.getContext('2d', { willReadFrequently: true });
+let spillTimer = null;
+
+function tuneDimColour() {
+  if (!ambientVideo || ambientVideo.readyState < 2) return;
+
+  let videoLum;
+  try {
+    samplerCtx.drawImage(ambientVideo, 0, 0, 8, 8);
+    const { data } = samplerCtx.getImageData(0, 0, 8, 8);
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) sum += lumOf(data[i], data[i + 1], data[i + 2]);
+    videoLum = sum / (data.length / 4);
+  } catch {
+    return;   // a frame that cannot be read yet is simply skipped
+  }
+
+  // Read the spill strength off the stylesheet so the two cannot drift apart.
+  const alpha = parseFloat(getComputedStyle(ambientVideo).opacity) || 0;
+  const behind = alpha * videoLum + (1 - alpha) * PAGE_LUM;
+
+  let best = 0;
+  for (let i = 1; i < DIM_CHOICES.length; i++) {
+    if (contrast(DIM_LUMS[i], behind) > contrast(DIM_LUMS[best], behind)) best = i;
+  }
+  document.documentElement.style.setProperty('--text-dim-live', DIM_CHOICES[best]);
+}
+
+function watchSpill(on) {
+  clearInterval(spillTimer);
+  if (!on) {
+    document.documentElement.style.setProperty('--text-dim-live', DIM_CHOICES[0]);
+    return;
+  }
+  tuneDimColour();
+  spillTimer = setInterval(tuneDimColour, 250);
+}
+
 /* Rows and titles are links, but their text still has to be selectable. Once
    something is selected, the mouseup that ends the drag must not navigate. */
 const hasSelection = () => String(window.getSelection() || '').trim().length > 0;
@@ -284,10 +353,12 @@ if (track && previewProjects.length) {
       v.addEventListener('playing', () => {
         slide.classList.add('playing');
         if (ambient) ambient.classList.add('on');
+        watchSpill(true);
       });
       v.addEventListener('pause', () => {
         slide.classList.remove('playing');
         if (ambient) ambient.classList.remove('on');
+        watchSpill(false);
       });
     });
 
