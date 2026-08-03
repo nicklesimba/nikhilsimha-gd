@@ -45,7 +45,7 @@ const projects = [
     title: 'K.I.B.',
     blurb: 'Kitties in Black, a playable prototype made for a game jam over the course of four days.',
     link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
-    cta: 'Play on itch.io',
+    cta: 'Play now',
     thumb: 'assets/kib/kib-thumb.png',
     images: [
       'assets/kib/kib-sc-1.png',
@@ -221,6 +221,7 @@ const titleEl = document.getElementById('showcase-title');
 const blurbEl = document.getElementById('showcase-blurb');
 const ctaEl = document.getElementById('showcase-cta');
 if (titleEl) keepSelectable(titleEl);
+if (ctaEl) keepSelectable(ctaEl);
 
 const STILL_DWELL_MS = 5000;
 
@@ -303,12 +304,14 @@ if (track && previewProjects.length) {
       linkEl.tabIndex = 0;
       linkLabelEl.textContent = `${project.cta || 'View'}: ${project.title}`;
       titleEl.href = project.link;
+      ctaEl.href = project.link;
     } else {
       linkEl.removeAttribute('href');
       linkEl.setAttribute('aria-hidden', 'true');
       linkEl.tabIndex = -1;
       linkLabelEl.textContent = '';
       titleEl.removeAttribute('href');
+      ctaEl.removeAttribute('href');
     }
 
     schedule(STILL_DWELL_MS);
