@@ -41,7 +41,7 @@ const projects = [
     video: 'assets/video/convoy.mp4',
   },
   {
-    tag: 'itch.io',
+    tag: 'GameMaker',
     title: 'K.I.B.',
     blurb: 'Kitties in Black, a playable prototype made for a game jam over the course of four days.',
     link: 'https://nicklesimba.itch.io/kib-kitties-in-black',
