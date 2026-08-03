@@ -213,6 +213,7 @@ function keepSelectable(el) {
 const ambient = document.getElementById('ambient');
 const ambientVideo = document.getElementById('ambient-video');
 const track = document.getElementById('showcase-track');
+const railEl = document.getElementById('showcase-rail');
 const railThumbs = document.getElementById('showcase-rail-thumbs');
 const linkEl = document.getElementById('showcase-link');
 const linkLabelEl = document.getElementById('showcase-link-label');
@@ -321,16 +322,37 @@ if (track && previewProjects.length) {
   }
 
   /* Paging to a project rebuilds the frame and the rail for that project.
-     Everything fades out, swaps, and fades back in, so a project is replaced
-     rather than cut to. */
+
+     The outgoing project is copied to a layer on top, the new one is built
+     underneath it straight away, and the copy is dissolved off. Fading the
+     live content out and back in instead would pass through the empty frame,
+     which reads as a dip to black between the two. */
   function loadProject(nextProject, instant = false) {
     clearTimeout(timer);
-    if (!instant) {
-      frame.classList.add('swapping');
-      setTimeout(() => { build(nextProject); frame.classList.remove('swapping'); }, SWAP_MS);
+    if (instant) {
+      build(nextProject);
       return;
     }
+
+    const ghost = document.createElement('div');
+    ghost.className = 'showcase-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.appendChild(track.cloneNode(true));
+    ghost.appendChild(railEl.cloneNode(true));
+    // Nothing is playing during an automatic swap, and a cloned clip would
+    // only cost a decode to show a frame that is about to disappear.
+    ghost.querySelectorAll('video').forEach((v) => v.remove());
+    // The copy carries every id in the frame; drop them so the live elements
+    // stay the only things any lookup can find.
+    ghost.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    frame.appendChild(ghost);
+
     build(nextProject);
+
+    requestAnimationFrame(() => {
+      ghost.classList.add('fading');
+      setTimeout(() => ghost.remove(), SWAP_MS + 80);
+    });
   }
 
   function build(nextProject) {

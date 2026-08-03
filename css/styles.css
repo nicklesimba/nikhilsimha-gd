@@ -326,14 +326,17 @@ main { position: relative; z-index: 1; }
 /* The picture spans the whole window. The rail and caption float over it. */
 .showcase-track { position: absolute; inset: 0; }
 
-/* A project leaves before the next one arrives: picture, caption and
-   thumbnails all fade out together, swap, and fade back in. */
-.showcase-track,
-.showcase-header,
-.rail-thumbs { transition: opacity 0.4s ease; }
-.showcase-frame.swapping .showcase-track,
-.showcase-frame.swapping .showcase-header,
-.showcase-frame.swapping .rail-thumbs { opacity: 0; }
+/* The outgoing project, copied on top of the incoming one and dissolved off,
+   so the two cross directly instead of passing through the empty frame. */
+.showcase-ghost {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+.showcase-ghost.fading { opacity: 0; }
 
 .slide {
   position: absolute;
