@@ -3,10 +3,12 @@
   --bg-sunk: #eae7e1;
   --text: #121114;          /* near black */
   --text-dim: #6b6873;      /* grey subtext */
-  /* Secondary type over the landing. The script retunes this while the spill
-     is up, since what that type contrasts against then depends on the clip. */
-  --text-dim-live: #6b6873;
   --text-faint: #9a96a3;
+  /* Live pair of the two above, for type sitting over the landing only. The
+     script retunes both while the spill is up, since what they contrast
+     against then depends on whatever the clip is showing. */
+  --text-dim-live: #6b6873;
+  --text-faint-live: #9a96a3;
 
   --rule: #d6d2ca;          /* hairline that does the dividing */
   --rule-strong: #b9b4ab;
@@ -252,7 +254,7 @@ main { position: relative; z-index: 1; }
   letter-spacing: 0.06em;
   padding: 3px 8px;
   border: 1px solid var(--rule);
-  color: var(--text-dim);
+  color: var(--text-dim-live);
   background: rgba(255, 255, 255, 0.5);
 }
 .identity-tags li:nth-child(3n + 1) { border-color: var(--violet-soft); background: var(--violet-soft); }
@@ -292,7 +294,7 @@ main { position: relative; z-index: 1; }
 .identity-links a {
   font-size: 0.74rem;
   letter-spacing: 0.06em;
-  color: var(--text-dim);
+  color: var(--text-dim-live);
   border-bottom: 1px solid var(--rule-strong);
   transition: color 0.18s ease, border-color 0.18s ease;
 }
@@ -433,14 +435,14 @@ main { position: relative; z-index: 1; }
   margin: 4px 0 0;
   font-size: 0.74rem;
   line-height: 1.6;
-  color: var(--text-dim);
+  color: var(--text-dim-live);
 }
 .showcase-cta {
   margin-top: 6px;
   font-size: 0.64rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-faint-live);
 }
 .showcase-cta:empty { display: none; }
 

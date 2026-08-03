@@ -128,7 +128,11 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
    which needs the spill past roughly 70%. Raise it and this flips on its own.
    ============================================================================ */
 const PAGE_LUM = 0.889;                                  // luminance of --bg
-const DIM_CHOICES = ['#6b6873', '#2a2733', '#ffffff'];   // default, darker, white
+// Every grey that sits over the landing, each as: default, darker, white.
+const LIVE_TONES = {
+  '--text-dim-live':   ['#6b6873', '#2a2733', '#ffffff'],
+  '--text-faint-live': ['#9a96a3', '#46424f', '#ffffff']
+};
 
 const toLinear = (c) => {
   c /= 255;
@@ -140,7 +144,9 @@ const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 const hexLum = (hex) => lumOf(
   parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)
 );
-const DIM_LUMS = DIM_CHOICES.map(hexLum);
+const LIVE_LUMS = Object.fromEntries(
+  Object.entries(LIVE_TONES).map(([name, tones]) => [name, tones.map(hexLum)])
+);
 
 const sampler = document.createElement('canvas');
 sampler.width = sampler.height = 8;
@@ -165,17 +171,22 @@ function tuneDimColour() {
   const alpha = parseFloat(getComputedStyle(ambientVideo).opacity) || 0;
   const behind = alpha * videoLum + (1 - alpha) * PAGE_LUM;
 
-  let best = 0;
-  for (let i = 1; i < DIM_CHOICES.length; i++) {
-    if (contrast(DIM_LUMS[i], behind) > contrast(DIM_LUMS[best], behind)) best = i;
+  for (const [name, tones] of Object.entries(LIVE_TONES)) {
+    const lums = LIVE_LUMS[name];
+    let best = 0;
+    for (let i = 1; i < tones.length; i++) {
+      if (contrast(lums[i], behind) > contrast(lums[best], behind)) best = i;
+    }
+    document.documentElement.style.setProperty(name, tones[best]);
   }
-  document.documentElement.style.setProperty('--text-dim-live', DIM_CHOICES[best]);
 }
 
 function watchSpill(on) {
   clearInterval(spillTimer);
   if (!on) {
-    document.documentElement.style.setProperty('--text-dim-live', DIM_CHOICES[0]);
+    for (const [name, tones] of Object.entries(LIVE_TONES)) {
+      document.documentElement.style.setProperty(name, tones[0]);
+    }
     return;
   }
   tuneDimColour();
