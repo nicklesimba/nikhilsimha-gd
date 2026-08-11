@@ -58,12 +58,21 @@ const projects = [
   },
   {
     tag: 'Unreal',
-    title: 'ProjectScraps',
-    blurb: 'Blueprint-first prototyping in Unreal, translating combat systems built in GML into a node-based engine.',
+    title: 'Project Scraps',
+    blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
+    link: 'https://youtu.be/d73XO2deG84',
     cta: 'Watch the demo',
-    // thumb:  'assets/poster/scraps.png',
-    // images: ['assets/poster/scraps.png'],
-    // video:  'assets/video/scraps.mp4',
+    // Shot at 3440x1440, so the slides stay 21:9 and uncropped; only the row
+    // thumbnail is cut to 16:9 to sit level with the other projects. JPEG here
+    // rather than PNG: these are 3D renders with smooth gradients, and PNG put
+    // the same five images at 4.2MB against 432KB.
+    thumb: 'assets/scraps/scraps-thumb.jpg',
+    images: [
+      'assets/scraps/scraps-sc-1.jpg',
+      'assets/scraps/scraps-sc-2.jpg',
+      'assets/scraps/scraps-sc-3.jpg'
+    ],
+    video: 'assets/video/scraps.mp4',
   },
   {
     tag: 'Tooling',
