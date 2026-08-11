@@ -22,6 +22,27 @@
    Drop media in:  assets/poster/   and   assets/video/
    ============================================================================ */
 const projects = [
+  // FIRST, deliberately: this order drives both the project list below and the
+  // showcase slideshow up top, so the newest and strongest work is what a
+  // visitor lands on rather than what they scroll to.
+  {
+    tag: 'Unreal',
+    title: 'Project Scraps',
+    blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
+    link: 'https://youtu.be/d73XO2deG84',
+    cta: 'Watch the demo',
+    // Shot at 3440x1440, so the slides stay 21:9 and uncropped; only the row
+    // thumbnail is cut to 16:9 to sit level with the other projects. JPEG here
+    // rather than PNG: these are 3D renders with smooth gradients, and PNG put
+    // the same four images at 4.2MB against 292KB.
+    thumb: 'assets/scraps/scraps-thumb.jpg',
+    images: [
+      'assets/scraps/scraps-sc-1.jpg',
+      'assets/scraps/scraps-sc-2.jpg',
+      'assets/scraps/scraps-sc-3.jpg'
+    ],
+    video: 'assets/video/scraps.mp4',
+  },
   {
     tag: 'GameMaker',
     title: 'Convoy',
@@ -55,24 +76,6 @@ const projects = [
       'assets/kib/gato-boss.png'
     ],
     video: 'assets/video/kib.mp4',
-  },
-  {
-    tag: 'Unreal',
-    title: 'Project Scraps',
-    blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
-    link: 'https://youtu.be/d73XO2deG84',
-    cta: 'Watch the demo',
-    // Shot at 3440x1440, so the slides stay 21:9 and uncropped; only the row
-    // thumbnail is cut to 16:9 to sit level with the other projects. JPEG here
-    // rather than PNG: these are 3D renders with smooth gradients, and PNG put
-    // the same five images at 4.2MB against 432KB.
-    thumb: 'assets/scraps/scraps-thumb.jpg',
-    images: [
-      'assets/scraps/scraps-sc-1.jpg',
-      'assets/scraps/scraps-sc-2.jpg',
-      'assets/scraps/scraps-sc-3.jpg'
-    ],
-    video: 'assets/video/scraps.mp4',
   },
   {
     tag: 'Tooling',
