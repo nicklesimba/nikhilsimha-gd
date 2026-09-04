@@ -28,7 +28,7 @@ const projects = [
   {
     tag: 'Unreal',
     title: 'Project Scraps',
-    blurb: 'Unreal Engine 5.8 horror demo built in C++ with a custom Niagara fluid sim for its flooded rooms. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
+    blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
     link: 'https://youtu.be/d73XO2deG84',
     cta: 'Watch the demo',
     // Shot at 3440x1440, so the slides stay 21:9 and uncropped; only the row
@@ -39,10 +39,23 @@ const projects = [
     images: [
       'assets/scraps/scraps-sc-1.jpg',
       'assets/scraps/scraps-sc-2.jpg',
-      'assets/scraps/scraps-sc-3.jpg',
-      'assets/scraps/scraps-water.jpg'
+      'assets/scraps/scraps-sc-3.jpg'
     ],
     video: 'assets/video/scraps.mp4',
+  },
+  {
+    tag: 'Unreal',
+    title: 'ProjectAmphib',
+    blurb: 'A custom Niagara fluid sim for Unreal Engine 5.8: conserved-volume water you can wade through, surfaced as a mesh rather than a flat plane.',
+    link: 'https://www.youtube.com/watch?v=oA_1XPhMadQ',
+    cta: 'Watch the demo',
+    thumb: 'assets/amphib/amphib-thumb.jpg',
+    images: [
+      'assets/amphib/amphib-sc-1.jpg',
+      'assets/amphib/amphib-sc-2.jpg',
+      'assets/amphib/amphib-sc-3.jpg'
+    ],
+    video: 'assets/video/amphib.mp4',
   },
   {
     tag: 'GameMaker',
