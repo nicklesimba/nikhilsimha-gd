@@ -28,7 +28,7 @@ const projects = [
   {
     tag: 'Unreal',
     title: 'Project Scraps',
-    blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
+    blurb: 'Unreal Engine 5.8 horror demo built in C++ with a custom Niagara fluid sim for its flooded rooms. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
     link: 'https://youtu.be/d73XO2deG84',
     cta: 'Watch the demo',
     // Shot at 3440x1440, so the slides stay 21:9 and uncropped; only the row
