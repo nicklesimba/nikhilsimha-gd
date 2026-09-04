@@ -27,6 +27,20 @@ const projects = [
   // visitor lands on rather than what they scroll to.
   {
     tag: 'Unreal',
+    title: 'ProjectAmphib',
+    blurb: 'A custom Niagara fluid sim for Unreal Engine 5.8: conserved-volume water you can wade through, surfaced as a mesh rather than a flat plane.',
+    link: 'https://www.youtube.com/watch?v=oA_1XPhMadQ',
+    cta: 'Watch the demo',
+    thumb: 'assets/amphib/amphib-thumb.jpg',
+    images: [
+      'assets/amphib/amphib-sc-1.jpg',
+      'assets/amphib/amphib-sc-2.jpg',
+      'assets/amphib/amphib-sc-3.jpg'
+    ],
+    video: 'assets/video/amphib.mp4',
+  },
+  {
+    tag: 'Unreal',
     title: 'Project Scraps',
     blurb: 'Unreal Engine 5.8 horror demo built in C++. A dark facility, a failing flashlight, and things in the walls. Keep an eye on your flashlight battery!',
     link: 'https://youtu.be/d73XO2deG84',
@@ -42,20 +56,6 @@ const projects = [
       'assets/scraps/scraps-sc-3.jpg'
     ],
     video: 'assets/video/scraps.mp4',
-  },
-  {
-    tag: 'Unreal',
-    title: 'ProjectAmphib',
-    blurb: 'A custom Niagara fluid sim for Unreal Engine 5.8: conserved-volume water you can wade through, surfaced as a mesh rather than a flat plane.',
-    link: 'https://www.youtube.com/watch?v=oA_1XPhMadQ',
-    cta: 'Watch the demo',
-    thumb: 'assets/amphib/amphib-thumb.jpg',
-    images: [
-      'assets/amphib/amphib-sc-1.jpg',
-      'assets/amphib/amphib-sc-2.jpg',
-      'assets/amphib/amphib-sc-3.jpg'
-    ],
-    video: 'assets/video/amphib.mp4',
   },
   {
     tag: 'GameMaker',
