@@ -323,7 +323,10 @@ main { position: relative; z-index: 1; }
 }
 .showcase-frame:hover { border-color: var(--violet); }
 
-/* The picture spans the whole window. The rail and caption float over it. */
+/* The picture spans the whole window. The rail and caption float over it.
+   The stage holds the picture, its link and the arrows; on a phone it is
+   what the column stacks under. */
+.showcase-stage { position: absolute; inset: 0; }
 .showcase-track { position: absolute; inset: 0; }
 
 /* The outgoing project, copied on top of the incoming one and dissolved off,
@@ -565,6 +568,32 @@ main { position: relative; z-index: 1; }
   outline-color: var(--text);
 }
 
+/* ------------------------------------------------ Touch: tap to toggle ---- */
+/* No hover to ride on, so the picture itself is the control: a tap flips
+   the clip and the still. A small hint says so until footage is rolling. */
+@media (hover: none) and (pointer: coarse) {
+  .showcase-stage { cursor: pointer; }
+  .showcase-stage::after {
+    content: 'Tap to play';
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 3;
+    padding: 4px 8px;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: rgba(246, 244, 240, 0.86);
+    border: 1px solid rgba(18, 17, 20, 0.14);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .showcase-stage:has(.slide.playing)::after { opacity: 0; }
+  /* Coming-soon projects have no footage, so there is nothing to tap for. */
+  .showcase-stage:not(:has(.slide-video))::after { display: none; }
+}
+
 /* Short desktop viewports: tighten the overview so its buttons and links stay
    on screen without the reader having to scroll for them. */
 @media (min-width: 901px) and (max-height: 860px) {
@@ -588,7 +617,10 @@ main { position: relative; z-index: 1; }
 }
 
 @media (max-width: 900px) {
-  :root { --rail-w: min(58vw, 260px); --thumb-min: 52px; }
+  /* No column beside the picture at this width: the caption and the
+     thumbnails sit under it instead, so the picture keeps the full width and
+     the thumbnails are big enough to actually tap. */
+  :root { --rail-w: 0px; }
   /* Stacked, the hero is two full blocks, so it must not be pinned to one screen. */
   .hero { min-height: 0; }
   .hero { grid-template-columns: 1fr; }
@@ -604,6 +636,52 @@ main { position: relative; z-index: 1; }
   }
   .identity .portrait { margin-top: 28px; }
   .portrait { width: 96px; height: 96px; }
+
+  .showcase-frame {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--bg);
+  }
+  .showcase-stage {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #2e2c34;
+  }
+  .showcase-rail {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    overflow: visible;
+    gap: 12px;
+    padding: 14px var(--gutter) 18px;
+    border-top: 1px solid var(--rule);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .showcase-frame:has(.slide.playing) .showcase-rail {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  /* One strip, scrolled sideways, each tile a comfortable thumb width. */
+  .rail-thumbs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .rail-thumb {
+    flex: 0 0 clamp(88px, 26vw, 128px);
+    width: auto;
+  }
+  /* The crossfade copy has to stack the same way the live frame does. */
+  .showcase-ghost { display: flex; flex-direction: column; }
+  .showcase-next { right: 0; }
 }
 
 /* ------------------------------------------------------- Project list ----- */
@@ -637,7 +715,8 @@ main { position: relative; z-index: 1; }
 
 .project-row {
   display: grid;
-  grid-template-columns: 34px 148px minmax(0, 1fr) auto 22px;
+  /* The thumbnail is a window the clip can play in, so it gets real width. */
+  grid-template-columns: 34px clamp(220px, 24vw, 340px) minmax(0, 1fr) auto 22px;
   align-items: center;
   gap: clamp(14px, 2vw, 26px);
   width: 100%;
@@ -676,6 +755,23 @@ main { position: relative; z-index: 1; }
   transition: filter 0.2s ease, transform 0.35s ease;
 }
 .project-row:hover .project-thumb img { filter: saturate(1.05); transform: scale(1.04); }
+
+/* The clip sits over the still and fades up while it rolls. */
+.project-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.project-thumb.playing .project-video { opacity: 1; }
+.project-thumb.playing img { opacity: 0; }
+.project-thumb img { transition: filter 0.2s ease, transform 0.35s ease, opacity 0.35s ease; }
 
 /* Logos are artwork, not screenshots: show them whole on a plain ground. */
 .project-thumb.is-logo { background: var(--bg-sunk); }
@@ -745,12 +841,39 @@ main { position: relative; z-index: 1; }
 .project-row.is-pending .project-arrow { opacity: 0; }
 
 @media (max-width: 780px) {
+  /* Stacked: the picture takes the full width so the clip is worth
+     watching, the text runs under it, and the call to action is its own
+     tappable line since the row is no longer the link on touch. */
   .project-row {
-    grid-template-columns: 26px 104px minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: 26px minmax(0, 1fr);
+    grid-template-areas:
+      'index thumb'
+      'index info'
+      'index cta';
+    gap: 12px 14px;
+    align-items: start;
   }
-  .project-cta, .project-arrow { display: none; }
+  .project-index { grid-area: index; padding-top: 2px; }
+  .project-thumb { grid-area: thumb; }
+  .project-info { grid-area: info; }
+  .project-cta { grid-area: cta; }
+  .project-arrow { display: none; }
   .project-blurb { font-size: 0.76rem; }
+  .project-row:hover { padding-left: var(--gutter); }
+}
+
+/* The call to action as a link of its own, only ever rendered on touch. */
+a.project-cta {
+  color: var(--violet);
+  border-bottom: 1px solid var(--violet);
+  padding-bottom: 1px;
+  justify-self: start;
+}
+/* Touch rows are inert; the thumbnail is the toggle. */
+@media (hover: none) and (pointer: coarse) {
+  div.project-row { cursor: default; }
+  div.project-row:hover { background: transparent; padding-left: var(--gutter); }
+  .project-row .project-thumb:not(.is-logo) { cursor: pointer; }
 }
 
 /* ------------------------------------------------------------ Footer ------ */
@@ -884,7 +1007,7 @@ main { position: relative; z-index: 1; }
   }
   /* A vertical rule between the two stacks, matching the hero split. */
   .project-row:nth-child(2n) { border-left: 1px solid var(--rule); }
-  .project-row { grid-template-columns: 34px 172px minmax(0, 1fr) auto 22px; }
+  .project-row { grid-template-columns: 34px 340px minmax(0, 1fr) auto 22px; }
 }
 
 /* ------------------------------------------------- Motion preferences ----- */

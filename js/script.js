@@ -12,14 +12,14 @@
             "Watch the demo". Shown on hover in the showcase.
    thumb    One static image, used for this project's row in the list below.
    images   Stills for the preview slideshow up top. List as many as you like;
-            each becomes its own slide and links back to this project.
-   video    Optional silent clip (a few seconds), played on hover over the
-            project's first preview slide. Use .mp4 (H.264) for browser support.
+            each becomes its own slide.
+   video    Optional silent clip (a few seconds). Rolls over the preview up top
+            and inside the project's row below. Use .mp4 (H.264).
 
    The preview and the list are deliberately separate: images[] feeds the
    slideshow, thumb feeds the row. A project needs at least one of them.
 
-   Drop media in:  assets/poster/   and   assets/video/
+   Drop media in:  assets/<project>/   and   assets/video/
    ============================================================================ */
 const projects = [
   // FIRST, deliberately: this order drives both the project list below and the
@@ -39,7 +39,8 @@ const projects = [
     images: [
       'assets/scraps/scraps-sc-1.jpg',
       'assets/scraps/scraps-sc-2.jpg',
-      'assets/scraps/scraps-sc-3.jpg'
+      'assets/scraps/scraps-sc-3.jpg',
+      'assets/scraps/scraps-water.jpg'
     ],
     video: 'assets/video/scraps.mp4',
   },
@@ -110,7 +111,7 @@ const slidesFor = (project) =>
   (project.images && project.images.length ? project.images : [null]).map((src) => ({
     src,
     project,
-    // Every still of a project rolls that project's clip on hover.
+    // Every still of a project rolls that project's clip.
     video: project.video || null
   }));
 
@@ -124,6 +125,108 @@ if (location.hash) {
 window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============================================================================
+   Touch versus pointer
+
+   There is no hover on a phone, so footage cannot be a hover reward there.
+   Instead a preview rolls once it has been held in view for a moment, and a
+   tap flips it back to the still. This is keyed off the input, not the
+   screen width or the user agent: a phone in landscape is still a phone, and
+   a touch laptop still has a mouse.
+   ============================================================================ */
+const touchUI = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  // ?touch on the URL previews the touch behaviour from a desktop browser.
+  || new URLSearchParams(location.search).has('touch');
+const FOCUS_DWELL_MS = 3000;   // held in view this long before footage rolls
+const FOCUS_RATIO = 0.6;       // and at least this much of it on screen
+
+/* One clip at a time on touch. A phone can have the landing and the first
+   row on screen together, and two clips fighting for the decoder is worse
+   than either alone. Every preview that can roll registers here; once one
+   has sat in view for the dwell it asks to play, and whichever asking
+   preview is nearest the middle of the screen gets it. A tap on a preview
+   overrides that. A little hysteresis keeps a slow scroll from flipping the
+   clip back and forth between two previews that are both nearly centred. */
+const focusCandidates = [];
+let activePlayer = null;
+const SWITCH_MARGIN = 0.15;   // of the viewport height
+
+function arbitrate() {
+  const mid = window.innerHeight / 2;
+  const dist = (c) => {
+    const r = c.el.getBoundingClientRect();
+    return Math.abs((r.top + r.bottom) / 2 - mid);
+  };
+  const asking = focusCandidates.filter((c) => c.wants);
+  let chosen = null;
+  const manual = asking.filter((c) => c.manual);
+  if (manual.length) {
+    chosen = manual[manual.length - 1];
+  } else if (asking.length) {
+    chosen = asking.reduce((a, b) => (dist(b) < dist(a) ? b : a));
+    // Keep the current one unless the challenger is clearly nearer.
+    if (activePlayer && activePlayer.wants && chosen !== activePlayer
+        && dist(chosen) > dist(activePlayer) - SWITCH_MARGIN * window.innerHeight) {
+      chosen = activePlayer;
+    }
+  }
+  if (chosen === activePlayer) return;
+  if (activePlayer) activePlayer.stop();
+  activePlayer = chosen;
+  if (chosen) chosen.start();
+}
+
+function registerFocusPlayer(el, start, stop) {
+  const c = { el, start, stop, wants: false, manual: false, timer: null };
+  new IntersectionObserver(([entry]) => {
+    clearTimeout(c.timer);
+    if (entry.isIntersecting && entry.intersectionRatio >= FOCUS_RATIO) {
+      c.timer = setTimeout(() => { c.wants = true; arbitrate(); }, FOCUS_DWELL_MS);
+    } else {
+      c.wants = false;
+      c.manual = false;
+      arbitrate();
+    }
+  }, { threshold: [0, FOCUS_RATIO] }).observe(el);
+  focusCandidates.push(c);
+  return {
+    isActive: () => activePlayer === c,
+    // A tap: roll this one now, or stop it if it is the one rolling.
+    toggle() {
+      clearTimeout(c.timer);
+      const off = activePlayer === c;
+      c.wants = !off;
+      c.manual = !off;
+      arbitrate();
+    },
+    // Something else stopped it (a thumbnail was chosen): drop the claim.
+    release() {
+      clearTimeout(c.timer);
+      c.wants = false;
+      c.manual = false;
+      if (activePlayer === c) activePlayer = null;
+      arbitrate();
+    }
+  };
+}
+
+if (touchUI) {
+  let queued = false;
+  window.addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; arbitrate(); });
+  }, { passive: true });
+}
+
+const play = (v) => {
+  if (!v) return;
+  const played = v.play();
+  // A rejected play (autoplay policy, low power mode, or a pause landing
+  // first) just leaves the still up, which is the correct fallback.
+  if (played && played.catch) played.catch(() => {});
+};
 
 /* ============================================================================
    Secondary type over the spill
@@ -220,11 +323,17 @@ function keepSelectable(el) {
 }
 
 /* ============================================================================
-   Showcase — still fades into silent preview footage, click opens the project
+   Showcase — still fades into silent preview footage
+
+   Desktop: pointing at the picture rolls the clip, clicking it opens the
+   project. Touch: the clip rolls after the picture has been in view for a
+   few seconds, and a tap flips between the clip and the still. The
+   thumbnails only ever choose a still; they never navigate.
    ============================================================================ */
 const ambient = document.getElementById('ambient');
 const ambientVideo = document.getElementById('ambient-video');
 const track = document.getElementById('showcase-track');
+const stage = document.getElementById('showcase-stage');
 const railEl = document.getElementById('showcase-rail');
 const railThumbs = document.getElementById('showcase-rail-thumbs');
 const linkEl = document.getElementById('showcase-link');
@@ -240,6 +349,8 @@ if (ctaEl) keepSelectable(ctaEl);
    project holds for this long and then crossfades to the next one. */
 const PROJECT_DWELL_MS = 6500;
 const SWAP_MS = 420;
+
+let heroPlayer = null;
 
 if (track && previewProjects.length) {
   let projectIndex = 0;
@@ -258,18 +369,8 @@ if (track && previewProjects.length) {
     }, PROJECT_DWELL_MS);
   }
 
-  /* Footage is a hover reward, not an autoplay. Thumbnails hold the frame
-     until someone points at them, which also keeps the clips off mobile. */
   /* Both the picture and its blurred backdrop are clips, so they start and
      stop together and the backdrop is nudged onto the picture's timestamp. */
-  const play = (v) => {
-    if (!v) return;
-    const played = v.play();
-    // A rejected play (autoplay policy, or a pause landing first) just leaves
-    // the still up, which is the correct fallback either way.
-    if (played && played.catch) played.catch(() => {});
-  };
-
   function stopVideo(slide) {
     if (ambientVideo) ambientVideo.pause();
     if (!slide) return;
@@ -316,18 +417,23 @@ if (track && previewProjects.length) {
     blurbEl.textContent = project.blurb;
     ctaEl.textContent = project.link ? (project.cta || 'View project') : 'Coming soon';
 
-    if (project.link) {
+    /* The title and the call to action always link. The picture itself only
+       links under a mouse: on touch a tap on it toggles the footage. */
+    if (project.link && !touchUI) {
       linkEl.href = project.link;
       linkEl.removeAttribute('aria-hidden');
       linkEl.tabIndex = 0;
       linkLabelEl.textContent = `${project.cta || 'View'}: ${project.title}`;
-      titleEl.href = project.link;
-      ctaEl.href = project.link;
     } else {
       linkEl.removeAttribute('href');
       linkEl.setAttribute('aria-hidden', 'true');
       linkEl.tabIndex = -1;
       linkLabelEl.textContent = '';
+    }
+    if (project.link) {
+      titleEl.href = project.link;
+      ctaEl.href = project.link;
+    } else {
       titleEl.removeAttribute('href');
       ctaEl.removeAttribute('href');
     }
@@ -349,11 +455,11 @@ if (track && previewProjects.length) {
     const ghost = document.createElement('div');
     ghost.className = 'showcase-ghost';
     ghost.setAttribute('aria-hidden', 'true');
-    ghost.appendChild(track.cloneNode(true));
+    ghost.appendChild(stage.cloneNode(true));
     ghost.appendChild(railEl.cloneNode(true));
     // Nothing is playing during an automatic swap, and a cloned clip would
     // only cost a decode to show a frame that is about to disappear.
-    ghost.querySelectorAll('video').forEach((v) => v.remove());
+    ghost.querySelectorAll('video, .showcase-arrow, .showcase-link').forEach((el) => el.remove());
     // The copy carries every id in the frame; drop them so the live elements
     // stay the only things any lookup can find.
     ghost.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
@@ -388,19 +494,16 @@ if (track && previewProjects.length) {
       </div>
     `).join('');
 
+    /* Thumbnails choose a still and nothing else. They used to be links to
+       the project, which meant a phone reader could not browse the stills
+       without being sent away. */
     railThumbs.innerHTML = previewSlides
       .filter((s) => s.src)
-      .map((s, i) => {
-        const tag = project.link ? 'a' : 'button';
-        const attrs = project.link
-          ? `href="${project.link}" target="_blank" rel="noopener"`
-          : 'type="button"';
-        return `
-          <${tag} class="rail-thumb${i === 0 ? ' active' : ''}" ${attrs} role="tab"
-                  aria-label="${project.title}" aria-selected="${i === 0}">
+      .map((s, i) => `
+          <button class="rail-thumb${i === 0 ? ' active' : ''}" type="button" role="tab"
+                  aria-label="${project.title}, screenshot ${i + 1}" aria-selected="${i === 0}">
             <img src="${s.src}" alt="" loading="lazy">
-          </${tag}>`;
-      }).join('');
+          </button>`).join('');
 
     slides = [...track.querySelectorAll('.slide')];
     rail = [...railThumbs.querySelectorAll('.rail-thumb')];
@@ -424,22 +527,26 @@ if (track && previewProjects.length) {
       });
     });
 
-    // The rail browses stills: hovering a thumbnail shows that screenshot and
-    // holds the footage. Clicks are left alone, these are links to the project.
+    // The rail browses stills: pointing at or tapping a thumbnail shows that
+    // screenshot and holds the footage.
     rail.forEach((thumb, i) => {
       const show = () => {
         if (i !== index) go(i);
         stopVideo(slides[index]);
+        if (touchUI && heroPlayer) heroPlayer.release();
       };
-      thumb.addEventListener('mouseenter', show);
-      thumb.addEventListener('focus', show);
+      thumb.addEventListener('click', show);
+      if (!touchUI) {
+        thumb.addEventListener('mouseenter', show);
+        thumb.addEventListener('focus', show);
+      }
     });
 
     go(0);
     schedule();
   }
 
-  const frame = track.closest('.showcase-frame');
+  const frame = document.getElementById('showcase-frame');
 
   // Project arrows. Hidden outright when there is only one project to show.
   const prevBtn = document.getElementById('showcase-prev');
@@ -453,41 +560,78 @@ if (track && previewProjects.length) {
     nextBtn.addEventListener('click', () => loadProject(projectIndex + 1));
   }
 
-  /* Anywhere over the picture rolls the clip. This listens on mouseover, not
-     mouseenter: mouseenter fires once on the way into the frame, so crossing
-     from an arrow or the column back onto the picture would never re-evaluate
-     and the footage would sit paused. mouseover fires on every transition
-     between descendants, so each of those moves is reconsidered. */
-  frame.addEventListener('mouseover', (e) => {
-    paused = true;
-    clearTimeout(timer);
-
-    // The column is not the picture: anywhere in it holds the footage, gaps
-    // and padding included, not just the thumbnails themselves.
-    if (e.target.closest('.showcase-rail')) {
-      stopVideo(slides[index]);
-      return;
-    }
-    // Arrows sit over the picture, so they neither start nor stop it.
-    if (reduceMotion || e.target.closest('.showcase-arrow')) return;
-
+  const holdStill = () => stopVideo(slides[index]);
+  const roll = () => {
+    if (reduceMotion) return;
     startVideo(slides[index]);
-  });
-
-  const release = () => {
-    paused = false;
-    stopVideo(slides[index]);
-    schedule();
   };
-  frame.addEventListener('mouseleave', release);
-  frame.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
-  frame.addEventListener('focusout', release);
 
-  // Don't burn cycles on a showcase that is scrolled off screen.
-  new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) schedule();
-    else { clearTimeout(timer); stopVideo(slides[index]); }
-  }, { threshold: 0.25 }).observe(frame);
+  if (!touchUI) {
+    /* Anywhere over the picture rolls the clip. This listens on mouseover,
+       not mouseenter: mouseenter fires once on the way into the frame, so
+       crossing from an arrow or the column back onto the picture would never
+       re-evaluate and the footage would sit paused. mouseover fires on every
+       transition between descendants, so each of those moves is
+       reconsidered. */
+    frame.addEventListener('mouseover', (e) => {
+      paused = true;
+      clearTimeout(timer);
+
+      // The column is not the picture: anywhere in it holds the footage, gaps
+      // and padding included, not just the thumbnails themselves.
+      if (e.target.closest('.showcase-rail')) {
+        holdStill();
+        return;
+      }
+      // Arrows sit over the picture, so they neither start nor stop it.
+      if (e.target.closest('.showcase-arrow')) return;
+
+      roll();
+    });
+
+    const release = () => {
+      paused = false;
+      holdStill();
+      schedule();
+    };
+    frame.addEventListener('mouseleave', release);
+    frame.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
+    frame.addEventListener('focusout', release);
+
+    // Don't burn cycles on a showcase that is scrolled off screen.
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) schedule();
+      else { clearTimeout(timer); holdStill(); }
+    }, { threshold: 0.25 }).observe(frame);
+  } else {
+    /* Touch. The picture rolls on its own once it has been held in view, and
+       holds the project while it is rolling so the swap never cuts a clip
+       off. A tap on the picture flips it back to the still (or rolls it
+       again). Tapping a thumbnail already stops it, via show() above. */
+    heroPlayer = registerFocusPlayer(stage,
+      () => {
+        if (!slides[index] || !slides[index].querySelector('.slide-video')) return;
+        paused = true;
+        clearTimeout(timer);
+        roll();
+      },
+      () => {
+        holdStill();
+        paused = false;
+        schedule();
+      });
+
+    stage.addEventListener('click', (e) => {
+      if (e.target.closest('.showcase-arrow')) return;
+      heroPlayer.toggle();
+    });
+
+    // Stills can still page when nothing is rolling; re-arm after a swap.
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !paused) schedule();
+      else if (!entry.isIntersecting) clearTimeout(timer);
+    }, { threshold: 0.25 }).observe(frame);
+  }
 
   loadProject(0, true);
 } else if (track) {
@@ -495,8 +639,12 @@ if (track && previewProjects.length) {
 }
 
 /* ============================================================================
-   Project list — every row is clickable. Rows with a link open it; rows
-   without one open their stills in the lightbox.
+   Project list
+
+   Desktop: the row is one link; pointing at it rolls the clip in the
+   thumbnail. Touch: the thumbnail rolls after it has sat in view, a tap on
+   it flips clip and still, and a separate call to action opens the project.
+   Rows with nothing to link to open their stills in the lightbox.
    ============================================================================ */
 const list = document.getElementById('project-list');
 
@@ -510,29 +658,39 @@ function shotsFor(project) {
 
 function thumbHTML(project) {
   const still = thumbOf(project);
-  if (still) return `<img src="${still}" alt="${project.title}" loading="lazy">`;
-  // No capture yet: a flat tile, never filler art passed off as gameplay.
-  return `<span class="thumb-empty" aria-hidden="true">${project.title.charAt(0)}</span>`;
+  if (!still) {
+    // No capture yet: a flat tile, never filler art passed off as gameplay.
+    return `<span class="thumb-empty" aria-hidden="true">${project.title.charAt(0)}</span>`;
+  }
+  const clip = project.video && !reduceMotion && project.thumbFit !== 'logo'
+    ? `<video class="project-video" src="${project.video}" muted loop playsinline preload="none" aria-hidden="true"></video>`
+    : '';
+  return `<img src="${still}" alt="${project.title}" loading="lazy">${clip}`;
 }
 
 projects.forEach((project, i) => {
-  const row = document.createElement(project.link ? 'a' : 'button');
+  /* Under a mouse the whole row is the link. On touch the row is inert and
+     the thumbnail and the call to action each do one thing. */
+  const rowIsLink = !!project.link && !touchUI;
+  const row = document.createElement(rowIsLink ? 'a' : (project.link ? 'div' : 'button'));
   row.className = 'project-row reveal';
   row.style.setProperty('--i', Math.min(i, 6));
   keepSelectable(row);
 
-  if (project.link) {
+  const hasShots = shotsFor(project).length > 0;
+  if (rowIsLink) {
     row.href = project.link;
     row.target = '_blank';
     row.rel = 'noopener';
-  } else {
+  } else if (!project.link) {
     row.type = 'button';
-    const hasShots = shotsFor(project).length > 0;
-    row.addEventListener('click', () => {
-      if (hasShots) openLightbox(project);
-    });
     if (!hasShots) row.classList.add('is-pending');
   }
+
+  const ctaText = project.link ? (project.cta || 'View project') : 'Coming soon';
+  const ctaHTML = project.link && touchUI
+    ? `<a class="project-cta" href="${project.link}" target="_blank" rel="noopener">${ctaText}</a>`
+    : `<span class="project-cta">${ctaText}</span>`;
 
   row.innerHTML = `
     <span class="project-index">${String(i + 1).padStart(2, '0')}</span>
@@ -542,9 +700,38 @@ projects.forEach((project, i) => {
       <span class="project-title">${project.title}</span>
       <span class="project-blurb">${project.blurb}</span>
     </span>
-    <span class="project-cta">${project.link ? (project.cta || 'View project') : 'Coming soon'}</span>
+    ${ctaHTML}
     <span class="project-arrow" aria-hidden="true">&#8594;</span>
   `;
+
+  const thumb = row.querySelector('.project-thumb');
+  const clip = row.querySelector('.project-video');
+
+  if (clip) {
+    clip.addEventListener('playing', () => thumb.classList.add('playing'));
+    clip.addEventListener('pause', () => thumb.classList.remove('playing'));
+  }
+  const rollRow = () => play(clip);
+  const holdRow = () => { if (clip) clip.pause(); };
+
+  if (!touchUI) {
+    if (clip) {
+      row.addEventListener('mouseenter', rollRow);
+      row.addEventListener('mouseleave', holdRow);
+      row.addEventListener('focusin', rollRow);
+      row.addEventListener('focusout', holdRow);
+    }
+    if (!project.link) {
+      row.addEventListener('click', () => { if (hasShots) openLightbox(project); });
+    }
+  } else {
+    if (clip) {
+      const player = registerFocusPlayer(thumb, rollRow, holdRow);
+      thumb.addEventListener('click', () => player.toggle());
+    } else if (!project.link) {
+      row.addEventListener('click', () => { if (hasShots) openLightbox(project); });
+    }
+  }
 
   list.appendChild(row);
 });

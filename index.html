@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=3">
+<link rel="stylesheet" href="css/styles.css?v=4">
 </head>
 <body>
   <script>document.documentElement.classList.remove('no-js');</script>
@@ -78,16 +78,20 @@
 
       <!-- ---------- Showcase: still fades into silent preview footage ---------- -->
       <div class="showcase">
-        <div class="showcase-frame">
-          <div class="showcase-track" id="showcase-track"></div>
-          <a class="showcase-link" id="showcase-link" target="_blank" rel="noopener">
-            <span class="sr-only" id="showcase-link-label"></span>
-          </a>
+        <div class="showcase-frame" id="showcase-frame">
+          <!-- The picture and its controls. On a phone this stacks above the
+               column instead of sitting underneath it. -->
+          <div class="showcase-stage" id="showcase-stage">
+            <div class="showcase-track" id="showcase-track"></div>
+            <a class="showcase-link" id="showcase-link" target="_blank" rel="noopener">
+              <span class="sr-only" id="showcase-link-label"></span>
+            </a>
 
-          <button class="showcase-arrow showcase-prev" id="showcase-prev" type="button"
-                  aria-label="Previous project">&#8592;</button>
-          <button class="showcase-arrow showcase-next" id="showcase-next" type="button"
-                  aria-label="Next project">&#8594;</button>
+            <button class="showcase-arrow showcase-prev" id="showcase-prev" type="button"
+                    aria-label="Previous project">&#8592;</button>
+            <button class="showcase-arrow showcase-next" id="showcase-next" type="button"
+                    aria-label="Next project">&#8594;</button>
+          </div>
 
           <aside class="showcase-rail" id="showcase-rail">
             <!-- Selectable text. Only the title inside it is a link. -->
@@ -133,6 +137,6 @@
     <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">&#8250;</button>
   </div>
 
-  <script src="js/script.js?v=3"></script>
+  <script src="js/script.js?v=4"></script>
 </body>
 </html>
