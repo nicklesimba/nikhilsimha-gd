@@ -15,6 +15,9 @@
             each becomes its own slide.
    video    Optional silent clip (a few seconds). Rolls over the preview up top
             and inside the project's row below. Use .mp4 (H.264).
+   showcase Set to false to keep a project OUT of the slideshow up top while
+            it stays in the list below. Leave it out and the project is
+            shown in both.
 
    The preview and the list are deliberately separate: images[] feeds the
    slideshow, thumb feeds the row. A project needs at least one of them.
@@ -26,8 +29,29 @@ const projects = [
   // showcase slideshow up top, so the newest and strongest work is what a
   // visitor lands on rather than what they scroll to.
   {
+    // The tag carries the "most recent" label by hand: when a newer project
+    // goes in above this one, take "Most recent" off here and put it there.
+    tag: 'Most recent · GameMaker',
+    title: 'Crosstographer',
+    blurb: 'A first-person dungeon crawler where the map you draw is a crossword. Built in a weekend for the 2026 Texas Game Jam with a team of four: a 3D maze renderer, a hand-drawn map pad, and a level editor, playable in the browser.',
+    link: 'https://nicklesimba.itch.io/crosstographer',
+    cta: 'Play on itch.io',
+    // The title still is a painting, so JPEG; the rest are flat pixel art
+    // with small text, which PNG keeps sharp at about the same size.
+    thumb: 'assets/crosstographer/crosstographer-thumb.jpg',
+    images: [
+      'assets/crosstographer/crosstographer-sc-1.jpg',
+      'assets/crosstographer/crosstographer-sc-2.png',
+      'assets/crosstographer/crosstographer-sc-3.png',
+      'assets/crosstographer/crosstographer-sc-4.png',
+      'assets/crosstographer/crosstographer-sc-5.png'
+    ],
+    video: 'assets/video/crosstographer.mp4',
+  },
+  {
     tag: 'Unreal',
     title: 'ProjectAmphib',
+    showcase: false,   // list only
     blurb: 'A custom Niagara fluid sim for Unreal Engine 5.8: conserved-volume water you can wade through, surfaced as a mesh rather than a flat plane.',
     link: 'https://www.youtube.com/watch?v=oA_1XPhMadQ',
     cta: 'Watch the demo',
@@ -60,6 +84,7 @@ const projects = [
   {
     tag: 'GameMaker',
     title: 'Convoy',
+    showcase: false,   // list only, until it has more art to show
     blurb: 'Cinematic melee combat: weighty swings, hit-stop, camera reactivity, and enemy spacing that keeps a crowd readable.',
     link: 'https://youtu.be/6LGuYfwRs9Y',
     cta: 'Watch the demo',
@@ -117,7 +142,7 @@ const thumbOf = (p) => p.thumb || (p.images && p.images[0]) || null;
 /* The preview is paged by project. A project appears once it has stills, or
    once it is flagged comingSoon so it can hold a slot before it has any. */
 const previewProjects = projects.filter(
-  (p) => (p.images && p.images.length) || p.comingSoon
+  (p) => p.showcase !== false && ((p.images && p.images.length) || p.comingSoon)
 );
 
 const slidesFor = (project) =>

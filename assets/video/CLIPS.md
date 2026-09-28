@@ -37,6 +37,23 @@ upload at 0:14.5 and 1:06 with the same crop, scaled to 1920 wide.
 `amphib-sc-1.jpg` is a desktop screenshot; `amphib-thumb.jpg` is its centre
 16:9.
 
+## crosstographer.mp4 (16 s, cut 2026-09-28)
+
+Source: https://www.youtube.com/watch?v=WNp3QRpj02s (1920x1080, 60 fps, already
+16:9: scaled to 720, nothing cropped). Sixteen seconds at most (Nik); a first
+cut of 33 s with the terminal and the door in it was too long.
+
+| Clip          | Source (YouTube time) | Notes |
+|---------------|-----------------------|-------|
+| 0:00 - 0:03.5 | 2:37 - 2:40.5         | Movement: walking the corridor, the map pad filling in |
+| 0:03.5 - 0:07 | 0:41 - 0:44.5         | Dialogue: Sorrel and Ida, both portraits |
+| 0:07 - 0:12   | 4:18 - 4:23           | Crossword entry in the words pad |
+| 0:12 - 0:15.8 | 2:12.4 - 2:16.2       | The gate: the prompt, then it rises |
+
+Stills are Nik's own screenshots of the itch build (2026-09-28, about 2555x1439),
+centre-cropped to 16:9 and scaled to 1920x1080. Slide 1 (the title painting) is
+JPEG, slides 2 to 5 PNG; the thumb is slide 1 at 1280x720.
+
 ## Recipe
 
 ```
